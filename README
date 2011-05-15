@@ -1,0 +1,8 @@
+To install:
+1. Install cmake and boost.
+2. 'cd /ethonmem/project/directory'
+3. 'cmake .'
+4. 'make'
+5. 'make install'
+
+
