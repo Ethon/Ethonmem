@@ -479,28 +479,45 @@ Process const& Ethon::getCurrentProcess()
 boost::optional<Process>
   Ethon::getProcessByName(std::string const& processName)
 {
+  // We can only use the first 15 bytes.
+  auto begin = processName.begin(), end = processName.end();
+  auto maybe = begin + 15;
+  std::string name(begin(), maybe > end ? end : maybe);
+  
+  // Iterate all processes.
   ProcessSequence sequence = Ethon::makeProcessSequence();
   BOOST_FOREACH(Process const& cur, sequence)
   {
-    if(processName == cur.getExecutablePath().filename())
+    ProcessStatus status;
+    cur.getStatus(status);
+    if(name == getExecuteableName())
       return boost::optional<Process>(cur);
   }
 
+  // No match.
   return boost::optional<Process>();
 }
 
 std::vector<Process>
   Ethon::getProcessListByName(std::string const& processName)
 {
-  std::vector<Process> temp;
+  // We can only use the first 15 bytes.
+  auto begin = processName.begin(), end = processName.end();
+  auto maybe = begin + 15;
+  std::string name(begin(), maybe > end ? end : maybe);
   
+  // Iterate all processes.
+  std::vector<Process> temp;
   ProcessSequence seq = Ethon::makeProcessSequence();
   BOOST_FOREACH(Process const& cur, seq)
   {
-    if(processName == cur.getExecutablePath().filename())
+    ProcessStatus status;
+    cur.getStatus(status);
+    if(name == getExecuteableName())
       temp.push_back(cur);
   }
 
+  // Return matches.
   return temp;
 }
 
