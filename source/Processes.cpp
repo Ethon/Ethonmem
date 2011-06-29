@@ -210,7 +210,7 @@ Pid ProcessStatus::getPid() const
   return m_pid;
 }
 
-std::string const& ProcessStatus::getExecuteableName() const
+std::string const& ProcessStatus::getExecutableName() const
 {
   return m_name;
 }
@@ -482,7 +482,7 @@ boost::optional<Process>
   // We can only use the first 15 bytes.
   auto begin = processName.begin(), end = processName.end();
   auto maybe = begin + 15;
-  std::string name(begin(), maybe > end ? end : maybe);
+  std::string name(begin, maybe > end ? end : maybe);
   
   // Iterate all processes.
   ProcessSequence sequence = Ethon::makeProcessSequence();
@@ -490,7 +490,7 @@ boost::optional<Process>
   {
     ProcessStatus status;
     cur.getStatus(status);
-    if(name == getExecuteableName())
+    if(name == status.getExecutableName())
       return boost::optional<Process>(cur);
   }
 
@@ -502,9 +502,9 @@ std::vector<Process>
   Ethon::getProcessListByName(std::string const& processName)
 {
   // We can only use the first 15 bytes.
-  auto begin = processName.begin(), end = processName.end();
+  auto begin = processName.cbegin(), end = processName.cend();
   auto maybe = begin + 15;
-  std::string name(begin(), maybe > end ? end : maybe);
+  std::string name(begin, maybe > end ? end : maybe);
   
   // Iterate all processes.
   std::vector<Process> temp;
@@ -513,7 +513,7 @@ std::vector<Process>
   {
     ProcessStatus status;
     cur.getStatus(status);
-    if(name == getExecuteableName())
+    if(name == status.getExecutableName())
       temp.push_back(cur);
   }
 
@@ -532,7 +532,7 @@ uint8_t Ethon::getProcessImageBits(Process const& proc)
   }
 
   // Read ELF ident.
-  uint8_t	ident[EI_NIDENT];
+  uint8_t ident[EI_NIDENT];
   exe.read(reinterpret_cast<char*>(&ident), EI_NIDENT);
 
   // Check magic.
