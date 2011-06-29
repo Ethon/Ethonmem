@@ -193,7 +193,7 @@ namespace Ethon
     * The filename of the executable.
     * @return The filename of the executable
     */
-    std::string const& getExecuteableName() const;
+    std::string const& getExecutableName() const;
 
     /**
     * Checks if the process is running.
