@@ -11,12 +11,7 @@ ENDIF()
 FIND_PACKAGE(Boost)
 
 #Specify include directories.
-INCLUDE_DIRECTORIES( ${ETHONMEM_SOURCE_DIR}/include
-  ${ETHONMEM_SOURCE_DIR}/depend/asmjit )
-
-#Compile AsmJit as static library.
-FILE(GLOB asmjitsources "${ETHONMEM_SOURCE_DIR}/depend/asmjit/AsmJit/*.cpp")
-ADD_LIBRARY( asmjit STATIC ${asmjitsources} )
+INCLUDE_DIRECTORIES( ${ETHONMEM_SOURCE_DIR}/include )
 
 #Compile ethonmem as static library.
 ADD_LIBRARY( ethonmem STATIC
@@ -30,7 +25,7 @@ ADD_LIBRARY( ethonmem STATIC
 )
 
 #Link.
-TARGET_LINK_LIBRARIES( ethonmem boost_system boost_filesystem asmjit)
+TARGET_LINK_LIBRARIES( ethonmem boost_system boost_filesystem )
 
 #Install ethonmem.
 INSTALL(FILES libethonmem.a DESTINATION lib)
