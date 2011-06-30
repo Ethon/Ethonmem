@@ -250,7 +250,7 @@ char ProcessStatus::getState() const
   return m_state;
 }
 
-char const* getStateString() const
+char const* ProcessStatus::getStateString() const
 {
     char const* result = "Unknown";
     switch(m_state)
