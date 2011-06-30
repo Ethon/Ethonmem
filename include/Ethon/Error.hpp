@@ -43,6 +43,23 @@ namespace Ethon
   class EthonError
     : public virtual std::exception, public virtual boost::exception
   { };
+  
+  // Will be thrown whenever an argument is invalid.
+  class ArgumentError
+    : public EthonError
+  { }
+  
+  // Will be thrown whenever a problem operating on the filesystem occurs.
+  class FilesystemError
+    : public EthonError
+  { };
+  
+  // Will be thrown whenever something doesn't behave like it should, mostly
+  // caused by a different configuration (for example, when procfs is
+  // not mounted).
+  class UnexpectedError
+    : public EthonError
+  { };
 
   // Records the current set system error code.
   std::error_code makeErrorCode();
