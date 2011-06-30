@@ -342,22 +342,22 @@ unsigned long ProcessStatus::getNumChildrenMajorFaults() const
   return m_cmajflt;
 }
 
-unsigned long ProcessStatus::getTicksScheduledInUsermode() const
+unsigned long ProcessStatus::getUserTime() const
 {
   return m_utime;
 }
 
-unsigned long ProcessStatus::getTicksScheduledInKernelmode() const
+unsigned long ProcessStatus::getSystemTime() const
 {
   return m_stime;
 }
 
-unsigned long ProcessStatus::getTicksChildrenScheduledInUsermode() const
+unsigned long ProcessStatus::getChildrenUserTime() const
 {
   return m_cutime;
 }
 
-unsigned long ProcessStatus::getTicksChildrenScheduledInKernelmode() const
+unsigned long ProcessStatus::getChildrenSystemTime() const
 {
   return m_cstime;
 }
