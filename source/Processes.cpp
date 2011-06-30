@@ -45,7 +45,10 @@ using Ethon::Process;
 using Ethon::ProcessStatus;
 using Ethon::ProcessIterator;
 using Ethon::EthonError;
+using Ethon::SystemApiError;
 using Ethon::FilesystemError;
+using Ethon::ArgumentError;
+using Ethon::UnexpectedError;
 using Ethon::ProcessSequence;
 using Ethon::Pid;
 
@@ -75,15 +78,14 @@ Process::Process(Pid process)
     m_path /= boost::lexical_cast<std::string>(process);
     if(!boost::filesystem::exists(m_path))
     {
-      BOOST_THROW_EXCEPTION(EthonError() <<
+      BOOST_THROW_EXCEPTION(ArgumentError() <<
 	ErrorString("Invalid PID"));
     }
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
       BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString("Could not validate PID") <<
-	ErrorCode(e.native_error()));
+	ErrorString(e.what()));
   }
 }
 
@@ -95,15 +97,14 @@ Process::Process(boost::filesystem::path const& path)
   {
     if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename()))
     {
-      BOOST_THROW_EXCEPTION(EthonError() <<
+      BOOST_THROW_EXCEPTION(ArgumentError() <<
 	ErrorString("Invalid path"));
     }
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
       BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString("Could not validate path") <<
-	ErrorCode(e.native_error()));
+	ErrorString(e.what()));
   }
   
   // Set pid
@@ -118,20 +119,19 @@ Pid Process::getPid() const
 boost::filesystem::path Process::getExecutablePath() const
 {
   // Make path to executeable and validate.
+  boost::filesystem::path exePath = getProcfsDirectory() / "exe";
   try
   {
-    boost::filesystem::path exePath = getProcfsDirectory() / "exe";
     if(!boost::filesystem::exists(exePath))
     {
-      BOOST_THROW_EXCEPTION(EthonError() <<
+      BOOST_THROW_EXCEPTION(UnexpectedError() <<
 	ErrorString("Error finding executeable of process."));
     } 
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
       BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString("Could not touch link to executable") <<
-	ErrorCode(e.native_error()));
+	ErrorString(e.what()));
   }
   
   int ec; 
@@ -142,7 +142,7 @@ boost::filesystem::path Process::getExecutablePath() const
     if(ec == -1)
     {
       std::error_code const error = Ethon::makeErrorCode();
-      BOOST_THROW_EXCEPTION(EthonError() <<
+      BOOST_THROW_EXCEPTION(SystemApiError() <<
         ErrorString("readlink failed") <<
         ErrorCode(error));
     }
@@ -511,11 +511,7 @@ bool ProcessIterator::isValid() const
 
 void ProcessIterator::increment()
 {
-  if(!isValid())
-  {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-    ErrorString("Invalid attempt to increment Iterator"));
-  }
+  assert(isValid());
 
   // Skip all non-process directories and assign.
   for(++m_iter; isValid() && !isNumericOnly(m_iter->filename()); ++m_iter);
@@ -610,7 +606,7 @@ uint8_t Ethon::getProcessImageBits(Process const& proc)
   uint32_t magic = *reinterpret_cast<const uint32_t*>(&ELFMAG[0]); 
   if(*reinterpret_cast<uint32_t*>(&ident[EI_MAG0]) != magic)
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
+    BOOST_THROW_EXCEPTION(UnexpectedError() <<
       ErrorString("No valid ELF file: Wrong magic number."));
   }
 
@@ -627,7 +623,7 @@ uint8_t Ethon::getProcessImageBits(Process const& proc)
     return 64;
 
   default:
-    BOOST_THROW_EXCEPTION(EthonError() <<
+    BOOST_THROW_EXCEPTION(UnexpectedError() <<
       ErrorString("Unknown ELF class."));
-  }
+  };
 }
