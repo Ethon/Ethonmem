@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <utility>
 #include <cassert>
+#include <algorithm>
 
 // Boost Library:
 #include <boost/filesystem.hpp>
@@ -545,19 +546,16 @@ Process const& Ethon::getCurrentProcess()
 
 boost::optional<Process>
   Ethon::getProcessByName(std::string const& processName)
-{
-  // We can only use the first 15 bytes.
-  auto begin = processName.begin(), end = processName.end();
-  auto maybe = begin + 15;
-  std::string name(begin, maybe > end ? end : maybe);
-  
+{ 
   // Iterate all processes.
   ProcessSequence sequence = Ethon::makeProcessSequence();
   BOOST_FOREACH(Process const& cur, sequence)
   {
     ProcessStatus status;
     cur.getStatus(status);
-    if(name == status.getExecutableName())
+    std::string const& curName = status.getExecutableName();
+    
+    if(std::equal(curName.cbegin(), curName.cend(), processName.cbegin()))
       return boost::optional<Process>(cur);
   }
 
@@ -567,12 +565,7 @@ boost::optional<Process>
 
 std::vector<Process>
   Ethon::getProcessListByName(std::string const& processName)
-{
-  // We can only use the first 15 bytes.
-  auto begin = processName.cbegin(), end = processName.cend();
-  auto maybe = begin + 15;
-  std::string name(begin, maybe > end ? end : maybe);
-  
+{ 
   // Iterate all processes.
   std::vector<Process> temp;
   ProcessSequence seq = Ethon::makeProcessSequence();
@@ -580,7 +573,9 @@ std::vector<Process>
   {
     ProcessStatus status;
     cur.getStatus(status);
-    if(name == status.getExecutableName())
+    std::string const& curName = status.getExecutableName();
+    
+    if(std::equal(curName.cbegin(), curName.cend(), processName.cbegin()))
       temp.push_back(cur);
   }
 
