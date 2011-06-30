@@ -250,6 +250,39 @@ char ProcessStatus::getState() const
   return m_state;
 }
 
+char const* getStateString() const
+{
+    char const* result = "Unknown";
+    switch(m_state)
+    {
+    case 'R':
+        result = "Running";
+        break;
+
+    case 'S':
+        result = "Sleeping";
+        break;
+
+    case 'D':
+        result = "Waiting";
+        break;
+
+    case 'Z':
+        result = "Zombie";
+        break;
+
+    case 'T':
+        result = "Traced/Stopped";
+        break;
+
+    case 'W':
+        result = "Paging";
+        break;
+    };
+    
+    return result;
+}
+
 Pid ProcessStatus::getParentPid() const
 {
   return m_ppid;

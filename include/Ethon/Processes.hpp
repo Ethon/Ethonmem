@@ -239,6 +239,14 @@ namespace Ethon
     * @return The status character.
     */
     char getState() const;
+    
+    /**
+     * Returns a string describing the current state.
+     * Possible values are 'Running', 'Sleeping', 'Waiting', 'Zombie',
+     * 'Traced/Stopped', 'Paging' and 'Unknown'.
+     * @return The status string.
+     */
+    char const* getStateString() const;
 
     /**
     * The PID of the parent.
