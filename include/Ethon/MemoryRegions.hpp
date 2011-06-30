@@ -59,7 +59,7 @@ namespace Ethon
     uintptr_t   m_start;    // Begin of the address space in the process.
     uintptr_t   m_end;      // End of the address space in the process.
     std::array<char, 4> m_perms; // A set of permissions.
-    uintptr_t   m_offset;   // The offset into the file/whatever.
+    uint32_t   	m_offset;   // The offset into the file/whatever.
     uint16_t    m_devMajor; // The device major.
     uint16_t    m_devMinor; // The device minor.
     uint32_t    m_inode;    // The inode on that device.
@@ -70,7 +70,7 @@ namespace Ethon
     * from a maps-file.
     * @param entryLine The entry of a maps file to parse.
     */
-    explicit MemoryRegion(std::string& entryLine);
+    explicit MemoryRegion(std::string const& entryLine);
 
   public:
 
@@ -137,7 +137,7 @@ namespace Ethon
     * Gets the offset into the mapped file.
     * @return The offset into the mapped file.
     */
-    uintptr_t getOffset() const;
+    uint32_t getOffset() const;
 
     /**
     * Gets the major number of the device containing the mapped file.

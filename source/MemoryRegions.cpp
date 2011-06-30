@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <deque>
 #include <cstdint>
 #include <algorithm>
-#include <sstream>
+#include <cstdlib>
 #include <utility>
 
 // Boost Library:
@@ -51,39 +51,16 @@ using Ethon::MemoryRegionSequence;
 
 /* MemoryRegion class */
 
-MemoryRegion::MemoryRegion(std::string& entryLine)
+MemoryRegion::MemoryRegion(std::string const& entryLine)
   : m_start(0), m_end(0), m_perms(), m_offset(0), m_devMajor(0),
     m_devMinor(0), m_inode(0), m_path("")
 {
-  // Replace characters by whitespaces for extracting.
-  size_t pos = entryLine.find('-');
-  if(pos != std::string::npos)
-    entryLine[pos] = ' ';
+  std::array<char, 1024> pathBuffer;
+  /*int count =*/ sscanf(entryLine.c_str(), "%lx-%lx %4s %x %hx:%hx %u %1024s",
+    &m_start, &m_end, &m_perms[0], &m_offset, &m_devMajor, &m_devMinor,
+    &m_inode, &pathBuffer[0]);
 
-  pos = entryLine.find(':');
-  if(pos != std::string::npos)
-    entryLine[pos] = ' ';
-
-  // Extract addresses of the memory region.
-  std::istringstream stream(entryLine);
-  stream >> std::hex >> m_start >> m_end;
-
-  // Extract memory permissions.
-  stream.ignore(1);
-  stream.read(&m_perms[0], 4);
-  stream.ignore(1);
-
-  // Extract offset, device and inode of mapped file.
-  stream >> m_offset >> std::dec >> m_devMajor >> m_devMinor >> m_inode;
-
-  // Get the path of the mapped file and find first non-whitespace
-  // character and assign that substring.
-  std::array<char, 256> buffer;
-  stream.get(&buffer[0], buffer.size());
-
-  size_t strBegin = 0;
-  for(;strBegin < buffer.size() && buffer[strBegin] == ' '; ++strBegin);
-    m_path.assign(&buffer[strBegin]);
+  m_path.assign(&pathBuffer[0]);
 }
 
 MemoryRegion::MemoryRegion()
@@ -138,7 +115,7 @@ const std::array<char, 4>& MemoryRegion::getPermissions() const
   return m_perms;
 }
 
-uintptr_t MemoryRegion::getOffset() const
+uint32_t MemoryRegion::getOffset() const
 {
   return m_offset;
 }
