@@ -241,11 +241,11 @@ namespace Ethon
     char getState() const;
     
     /**
-     * Returns a string describing the current state.
-     * Possible values are 'Running', 'Sleeping', 'Waiting', 'Zombie',
-     * 'Traced/Stopped', 'Paging' and 'Unknown'.
-     * @return The status string.
-     */
+    * Returns a string describing the current state.
+    * Possible values are 'Running', 'Sleeping', 'Waiting', 'Zombie',
+    * 'Traced/Stopped', 'Paging' and 'Unknown'.
+    * @return The status string.
+    */
     char const* getStateString() const;
 
     /**
@@ -267,12 +267,12 @@ namespace Ethon
     Pid getSessionId() const;
 
     /**
-    * The controlling terminal of the process. (The minor device number is
-    * contained in the combination of bits 31 to 20 and  7  to 0; the major
-    * device number is in bits 15 t0 8.)
+    * The controlling terminal of the process as pair.
+    * The first value holds the major device number, the second holds
+    * the minor.
     * @return The controlling terminal of the process.
     */
-    Pid getTty() const;
+    std::pair<int, int> getTty() const;
 
     /**
     * The ID of the foreground process group of the controlling terminal of
@@ -324,14 +324,14 @@ namespace Ethon
     * do not lose that time from their calculations.
     * @return The amount of time.
     */
-    unsigned long getTicksScheduledInUsermode() const;
+    unsigned long getUserTime() const;
 
     /**
     * Amount of time that this process has been scheduled in kernel mode,
     * measured in clock ticks (divide by sysconf(_SC_CLK_TCK).
     * @return The amount of time.
     */
-    unsigned long getTicksScheduledInKernelmode() const;
+    unsigned long getSystemTime() const;
 
     /**
     * Amount of time that this process's waited-for children have been
@@ -340,7 +340,7 @@ namespace Ethon
     * cguest_time (time spent running a virtual CPU, see below).
     * @return The amount of time.
     */
-    unsigned long getTicksChildrenScheduledInUsermode() const;
+    unsigned long getChildrenUserTime() const;
 
     /**
     * Amount of time that this process's waited-for children have been
@@ -348,7 +348,7 @@ namespace Ethon
     * sysconf(_SC_CLK_TCK).
     * @return The amount of time.
     */
-    unsigned long getTicksChildrenScheduledInKernelmode() const;
+    unsigned long getChildrenSystemTime() const;
 
     /**
     * (Explanation  for  Linux  2.6)  For processes running a real-time
