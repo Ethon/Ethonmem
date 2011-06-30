@@ -49,16 +49,21 @@ namespace Ethon
     : public EthonError
   { }
   
-  // Will be thrown whenever a problem operating on the filesystem occurs.
-  class FilesystemError
-    : public EthonError
-  { };
-  
   // Will be thrown whenever something doesn't behave like it should, mostly
   // caused by a different configuration (for example, when procfs is
   // not mounted).
   class UnexpectedError
     : public EthonError
+  { };
+  
+  // Will be thrown whenver a system call fails.
+  class SystemApiError
+    : public EthonError
+  { };
+  
+  // Will be thrown whenever a problem operating on the filesystem occurs.
+  class FilesystemError
+    : public SystemApiError
   { };
 
   // Records the current set system error code.
