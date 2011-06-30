@@ -298,9 +298,18 @@ Pid ProcessStatus::getSessionId() const
   return m_session;
 }
 
-Pid ProcessStatus::getTty() const
+std::pair<int, int> ProcessStatus::getTty() const
 {
-  return m_tty_nr;
+  int tty = m_tty_nr; 
+  int minor = static_cast<char>(tty);
+  
+  tty >>= 8;
+  int major = static_cast<char>(tty);
+  
+  tty >>= 12;
+  minor += static_cast<char>(tty);
+  
+  return std::pair<int, int>(major, minor);
 }
 
 Pid ProcessStatus::getTtyProcessGroupId() const
