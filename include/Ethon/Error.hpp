@@ -47,7 +47,7 @@ namespace Ethon
   // Will be thrown whenever an argument is invalid.
   class ArgumentError
     : public EthonError
-  { }
+  { };
   
   // Will be thrown whenever something doesn't behave like it should, mostly
   // caused by a different configuration (for example, when procfs is
