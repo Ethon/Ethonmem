@@ -84,7 +84,7 @@ namespace Ethon
 
     /**
     * Retrieves the process' procfs path.
-    * @return THe process' procfs path.
+    * @return The process' procfs path.
     */
     boost::filesystem::path const& getProcfsDirectory() const;
 
