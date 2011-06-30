@@ -505,7 +505,8 @@ ProcessIterator::ProcessIterator(int)
 
 bool ProcessIterator::isValid() const
 {
-  return m_iter != boost::filesystem::directory_iterator();
+  static boost::filesystem::directory_iterator invalid;
+  return m_iter != invalid;
 }
 
 void ProcessIterator::increment()
