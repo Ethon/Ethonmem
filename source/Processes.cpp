@@ -45,6 +45,7 @@ using Ethon::Process;
 using Ethon::ProcessStatus;
 using Ethon::ProcessIterator;
 using Ethon::EthonError;
+using Ethon::FilesystemError;
 using Ethon::ProcessSequence;
 using Ethon::Pid;
 
@@ -69,11 +70,20 @@ Process::Process(Pid process)
  : m_pid(process), m_path("/proc")
 {
   // Make path.and validate
-  m_path /= boost::lexical_cast<std::string>(process);
-  if(!boost::filesystem::exists(m_path))
+  try
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-      ErrorString("Invalid PID or insufficient permissions"));
+    m_path /= boost::lexical_cast<std::string>(process);
+    if(!boost::filesystem::exists(m_path))
+    {
+      BOOST_THROW_EXCEPTION(EthonError() <<
+	ErrorString("Invalid PID"));
+    }
+  }
+  catch(boost::filesystem::filesystem_error const& e)
+  {
+      BOOST_THROW_EXCEPTION(FilesystemError() <<
+	ErrorString("Could not validate PID") <<
+	ErrorCode(e.native_error()));
   }
 }
 
@@ -81,12 +91,21 @@ Process::Process(boost::filesystem::path const& path)
  : m_pid(0), m_path(path)
 {
   // Validate path
-  if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename()))
+  try
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-      ErrorString("Invalid path or insufficient permissions"));
+    if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename()))
+    {
+      BOOST_THROW_EXCEPTION(EthonError() <<
+	ErrorString("Invalid path"));
+    }
   }
-
+  catch(boost::filesystem::filesystem_error const& e)
+  {
+      BOOST_THROW_EXCEPTION(FilesystemError() <<
+	ErrorString("Could not validate path") <<
+	ErrorCode(e.native_error()));
+  }
+  
   // Set pid
   m_pid = boost::lexical_cast< Pid>(path.filename());
 }
@@ -99,12 +118,21 @@ Pid Process::getPid() const
 boost::filesystem::path Process::getExecutablePath() const
 {
   // Make path to executeable and validate.
-  boost::filesystem::path exePath = getProcfsDirectory() / "exe";
-  if(!boost::filesystem::exists(exePath))
+  try
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-      ErrorString("Error finding executeable of process."));
-  } 
+    boost::filesystem::path exePath = getProcfsDirectory() / "exe";
+    if(!boost::filesystem::exists(exePath))
+    {
+      BOOST_THROW_EXCEPTION(EthonError() <<
+	ErrorString("Error finding executeable of process."));
+    } 
+  }
+  catch(boost::filesystem::filesystem_error const& e)
+  {
+      BOOST_THROW_EXCEPTION(FilesystemError() <<
+	ErrorString("Could not touch link to executable") <<
+	ErrorCode(e.native_error()));
+  }
   
   int ec; 
   std::vector<char> buffer(512);
@@ -180,8 +208,8 @@ ProcessStatus& ProcessStatus::read(Process const& process)
   boost::filesystem::ifstream statFile(process.getProcfsDirectory() / "stat");
   if(!statFile.is_open())
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-    ErrorString("Can't open statfile"));
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
+      ErrorString("Can't open statfile"));
   }
 
   // Read it ;)
@@ -569,7 +597,7 @@ uint8_t Ethon::getProcessImageBits(Process const& proc)
   boost::filesystem::ifstream exe(proc.getExecutablePath());
   if(!exe.is_open())
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
       ErrorString("Error opening executeable of process for reading."));
   }
 
