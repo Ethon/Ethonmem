@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <algorithm>
 #include <cstdlib>
 #include <utility>
+#include <cassert>
 
 // Boost Library:
 #include <boost/lexical_cast.hpp>
@@ -47,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using Ethon::MemoryRegion;
 using Ethon::MemoryRegionIterator;
 using Ethon::EthonError;
+using Ethon::UnexpectedError;
+using Ethon::FilesystemError;
 using Ethon::MemoryRegionSequence;
 
 /* MemoryRegion class */
@@ -152,17 +155,25 @@ MemoryRegionIterator::MemoryRegionIterator(Process const& process)
   // Make path.
   boost::filesystem::path path(process.getProcfsDirectory());
   path /= "maps";
-  if(!boost::filesystem::exists(path))
+  try
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-      ErrorString("Can't locate maps-file"));
+    if(!boost::filesystem::exists(path))
+    {
+      BOOST_THROW_EXCEPTION(UnexpectedError() <<
+	ErrorString("Can't locate maps-file"));
+    }
+  }
+  catch(boost::filesystem::filesystem_error const& e)
+  {
+      BOOST_THROW_EXCEPTION(FilesystemError() <<
+	ErrorString(e.what()));
   }
 
   // Open path.
   boost::filesystem::ifstream mapsFile(path);
   if(!mapsFile.is_open())
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
       ErrorString("Can't open maps-file"));
   }
 
@@ -174,9 +185,9 @@ MemoryRegionIterator::MemoryRegionIterator(Process const& process)
     m_entries.push_back(std::move(current));
   }
 
-  if(m_entries.size() <= 1)
+  if(m_entries.empty())
   {
-    BOOST_THROW_EXCEPTION(EthonError() <<
+    BOOST_THROW_EXCEPTION(UnexpectedError() <<
       ErrorString("Couldn't read region entries from maps-file"));
   }
 
@@ -191,11 +202,7 @@ bool MemoryRegionIterator::isValid() const
 
 void MemoryRegionIterator::increment()
 {
-  if(!isValid())
-  {
-    BOOST_THROW_EXCEPTION(EthonError() <<
-    ErrorString("Invalid attempt to increment Iterator"));
-  }
+  assert(isValid());
 
   // Get memory region entry.
   std::string& line = m_entries.front();
@@ -215,7 +222,6 @@ MemoryRegion& MemoryRegionIterator::dereference() const
 {
   return m_current;
 }
-
 
 MemoryRegionSequence Ethon::makeMemoryRegionSequence(Process const& process)
 {
