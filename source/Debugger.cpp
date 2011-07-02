@@ -81,6 +81,16 @@ void Debugger::attach() const
       ErrorString("ptrace with PTRACE_ATTACH failed") <<
       ErrorCode(error));
   }
+  
+  // Wait for process to stop.
+  int status;
+  if(waitpid(m_process.getPid(), &status, 0) == -1 || !WIFSTOPPED(status))
+  {
+    std::error_code const error = Ethon::makeErrorCode();
+    BOOST_THROW_EXCEPTION(EthonError() <<
+      ErrorString("wait failed") <<
+      ErrorCode(error));
+  }
 }
 
 void Debugger::detach() const
