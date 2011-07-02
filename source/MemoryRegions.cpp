@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using Ethon::MemoryRegion;
 using Ethon::MemoryRegionIterator;
-using Ethon::EthonError;
 using Ethon::UnexpectedError;
 using Ethon::FilesystemError;
 using Ethon::MemoryRegionSequence;
@@ -56,7 +55,7 @@ using Ethon::MemoryRegionSequence;
 
 MemoryRegion::MemoryRegion(std::string const& entryLine)
   : m_start(0), m_end(0), m_perms(), m_offset(0), m_devMajor(0),
-    m_devMinor(0), m_inode(0), m_path("")
+    m_devMinor(0), m_inode(0), m_path()
 {
   std::array<char, 1024> pathBuffer;
   /*int count =*/ sscanf(entryLine.c_str(), "%lx-%lx %4s %x %hx:%hx %u %1024s",
@@ -68,49 +67,49 @@ MemoryRegion::MemoryRegion(std::string const& entryLine)
 
 MemoryRegion::MemoryRegion()
   : m_start(0), m_end(0), m_perms(), m_offset(0), m_devMajor(0),
-    m_devMinor(0), m_inode(0), m_path("")
+    m_devMinor(0), m_inode(0), m_path()
 {
   std::fill(m_perms.begin(), m_perms.end(), '-');
 }
 
-uintptr_t MemoryRegion::getStartAddress() const
+std::uintptr_t MemoryRegion::getStartAddress() const
 {
   return m_start;
 }
 
-uintptr_t MemoryRegion::getEndAddress() const
+std::uintptr_t MemoryRegion::getEndAddress() const
 {
   return m_end;
 }
 
-size_t MemoryRegion::getSize() const
+std::size_t MemoryRegion::getSize() const
 {
   return m_end - m_start;
 }
 
 bool MemoryRegion::isReadable() const
 {
-  return m_perms[Perm_Read] == 'r';
+  return m_perms[kPerm_Read] == 'r';
 }
 
 bool MemoryRegion::isWriteable() const
 {
-  return m_perms[Perm_Write] == 'w';
+  return m_perms[kPerm_Write] == 'w';
 }
 
 bool MemoryRegion::isExecuteable() const
 {
-  return m_perms[Perm_Execute] == 'x';
+  return m_perms[kPerm_Execute] == 'x';
 }
 
 bool MemoryRegion::isShared() const
 {
-  return m_perms[Perm_Shared] == 's';
+  return m_perms[kPerm_Shared] == 's';
 }
 
 bool MemoryRegion::isPrivate() const
 {
-  return m_perms[Perm_Shared] == 'p';
+  return m_perms[kPerm_Shared] == 'p';
 }
 
 const std::array<char, 4>& MemoryRegion::getPermissions() const
@@ -118,22 +117,22 @@ const std::array<char, 4>& MemoryRegion::getPermissions() const
   return m_perms;
 }
 
-uint32_t MemoryRegion::getOffset() const
+std::uint32_t MemoryRegion::getOffset() const
 {
   return m_offset;
 }
 
-uint16_t MemoryRegion::getDeviceMajor() const
+std::uint16_t MemoryRegion::getDeviceMajor() const
 {
   return m_devMajor;
 }
 
-uint16_t MemoryRegion::getDeviceMinor() const
+std::uint16_t MemoryRegion::getDeviceMinor() const
 {
   return m_devMinor;
 }
 
-uint32_t MemoryRegion::getInode() const
+std::uint32_t MemoryRegion::getInode() const
 {
   return m_inode;
 }
@@ -160,13 +159,13 @@ MemoryRegionIterator::MemoryRegionIterator(Process const& process)
     if(!boost::filesystem::exists(path))
     {
       BOOST_THROW_EXCEPTION(UnexpectedError() <<
-	ErrorString("Can't locate maps-file"));
+        ErrorString("Can't locate maps-file"));
     }
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
-      BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString(e.what()));
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
+      ErrorString(e.what()));
   }
 
   // Open path.

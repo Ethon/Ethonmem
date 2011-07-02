@@ -50,20 +50,20 @@ namespace Ethon
 
     enum Perms
     {
-      Perm_Read,
-      Perm_Write,
-      Perm_Execute,
-      Perm_Shared
+      kPerm_Read,
+      kPerm_Write,
+      kPerm_Execute,
+      kPerm_Shared
     };
 
-    uintptr_t   m_start;    // Begin of the address space in the process.
-    uintptr_t   m_end;      // End of the address space in the process.
-    std::array<char, 4> m_perms; // A set of permissions.
-    uint32_t   	m_offset;   // The offset into the file/whatever.
-    uint16_t    m_devMajor; // The device major.
-    uint16_t    m_devMinor; // The device minor.
-    uint32_t    m_inode;    // The inode on that device.
-    std::string m_path;     // The pathname of the mapped file.
+    std::uintptr_t   	  m_start;    // Begin of the address space.
+    std::uintptr_t   	  m_end;      // End of the address space.
+    std::array<char, 4> m_perms;    // A set of permissions.
+    std::uint32_t   	  m_offset;   // The offset into the file.
+    std::uint16_t    	  m_devMajor; // The major device number.
+    std::uint16_t    	  m_devMinor; // The minor device numer.
+    std::uint32_t       m_inode;    // The inode on that device.
+    std::string         m_path;     // The path of the mapped file.
 
     /**
     * Special constructor for use by MemoryRegionIterator, processes an entry
@@ -83,19 +83,19 @@ namespace Ethon
     * Gets the memory regions virtual start address.
     * @return The memory regions virtual start address.
     */
-    uintptr_t getStartAddress() const;
+    std::uintptr_t getStartAddress() const;
 
     /**
     * Gets the memory regions virtual end address.
     * @return The memory regions virtual end address.
     */
-    uintptr_t getEndAddress() const;
+    std::uintptr_t getEndAddress() const;
 
     /**
     * Gets the memory regions virtual size.
     * @return The memory regions virtual size.
     */
-    size_t getSize() const;
+    std::size_t getSize() const;
 
     /**
     * Checks if reading from the memory regions' memoryspace is allowed.
@@ -137,25 +137,25 @@ namespace Ethon
     * Gets the offset into the mapped file.
     * @return The offset into the mapped file.
     */
-    uint32_t getOffset() const;
+    std::uint32_t getOffset() const;
 
     /**
     * Gets the major number of the device containing the mapped file.
     * @return The major number of the device containing the mapped file.
     */
-    uint16_t getDeviceMajor() const;
+    std::uint16_t getDeviceMajor() const;
 
     /**
     * Gets the minor number of the device containing the mapped file.
     * @return The minor number of the device containing the mapped file.
     */
-    uint16_t getDeviceMinor() const;
+    std::uint16_t getDeviceMinor() const;
 
     /**
     * Gets the inode on the device containing the mapped file.
     * @return The inode on the device containing the mapped file.
     */
-    uint32_t getInode() const;
+    std::uint32_t getInode() const;
 
     /**
     * Gets the path of the mapped file.
@@ -248,7 +248,7 @@ namespace Ethon
   * @return The memory-region, if found.
   */
   boost::optional<MemoryRegion> getMatchingRegion(Process const& process,
-    uintptr_t address);
+    std::uintptr_t address);
 }
 
 #endif //__ETHON_MEMORYREGIONS_HPP__
