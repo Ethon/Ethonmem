@@ -176,16 +176,17 @@ bool MemoryRegionIterator::isValid() const
   return m_maps && !feof(m_maps) && !ferror(m_maps);
 }
 
-void MemoryRegionIterator::parse(char const* line)
+int MemoryRegionIterator::parse(char const* line)
 {
   std::array<char, 1024> pathBuffer;
   pathBuffer[0] = '\0';
-  sscanf(line, "%lx-%lx %4s %x %hx:%hx %u %1024s",
+  int result = sscanf(line, "%lx-%lx %4s %x %hx:%hx %u %1024s",
     &m_current.m_start, &m_current.m_end, &m_current.m_perms[0],
     &m_current.m_offset, &m_current.m_devMajor, &m_current.m_devMinor,
     &m_current.m_inode, &pathBuffer[0]);
 
   m_current.m_path.assign(&pathBuffer[0]);
+  return result;
 }
 
 void MemoryRegionIterator::increment()
@@ -193,8 +194,8 @@ void MemoryRegionIterator::increment()
   assert(isValid());
 
   std::array<char, 1152> lineBuffer;
-  fgets(&lineBuffer[0], 1152, m_maps);
-  parse(&lineBuffer[0]);
+  if(fgets(&lineBuffer[0], 1152, m_maps))
+    parse(&lineBuffer[0]);
 }
 
 bool MemoryRegionIterator::equal(MemoryRegionIterator const& other) const

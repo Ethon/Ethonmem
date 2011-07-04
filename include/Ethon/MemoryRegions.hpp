@@ -172,8 +172,9 @@ namespace Ethon
     /**
      * Parses a line from /proc/[pid]/maps and stores it.
      * @param line Line to parse.
+     * @return Number of read fields.
      */
-    void parse(char const* line);
+    int parse(char const* line);
 
     /**
     * Increments the iterator to point to the next entry.
