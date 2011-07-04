@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // C++ Standard Library:
 #include <string>
 #include <array>
-#include <deque>
 #include <cstdint>
 #include <algorithm>
 #include <utility>
+#include <cstdio>
 
 // Boost Library:
 #include <boost/iterator/iterator_facade.hpp>
@@ -64,13 +64,6 @@ namespace Ethon
     std::uint16_t    	  m_devMinor; // The minor device numer.
     std::uint32_t       m_inode;    // The inode on that device.
     std::string         m_path;     // The path of the mapped file.
-
-    /**
-    * Special constructor for use by MemoryRegionIterator, processes an entry
-    * from a maps-file.
-    * @param entryLine The entry of a maps file to parse.
-    */
-    explicit MemoryRegion(std::string const& entryLine);
 
   public:
 
@@ -177,6 +170,12 @@ namespace Ethon
     friend class boost::iterator_core_access;
 
     /**
+     * Parses a line from /proc/[pid]/maps and stores it.
+     * @param line Line to parse.
+     */
+    void parse(char const* line);
+
+    /**
     * Increments the iterator to point to the next entry.
     */
     void increment();
@@ -195,7 +194,7 @@ namespace Ethon
     MemoryRegion& dereference() const;
 
     mutable MemoryRegion m_current;
-    std::deque<std::string> m_entries;
+    FILE* m_maps;
 
   public:
 
@@ -209,6 +208,23 @@ namespace Ethon
     * @param process A process object specifying a process.
     */
     explicit MemoryRegionIterator(Process const& process);
+
+    /**
+    * Move-Constructor.
+    * @param other Another MemoryRegionIterator to move.
+    */
+    explicit MemoryRegionIterator(MemoryRegionIterator&& other);
+
+    /**
+     * Destructor.
+     */
+    ~MemoryRegionIterator();
+
+    /**
+    * Move-Assignment.
+    * @param other Another MemoryRegionIterator to move.
+    */
+    MemoryRegionIterator& operator=(MemoryRegionIterator&& other);
 
     /**
     * Checks if the iterator is (still) valid.

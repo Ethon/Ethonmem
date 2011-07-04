@@ -25,18 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // C++ Standard Library:
 #include <string>
 #include <array>
-#include <deque>
 #include <cstdint>
 #include <algorithm>
-#include <cstdlib>
+#include <cstdio>
 #include <utility>
 #include <cassert>
 
 // Boost Library:
-#include <boost/lexical_cast.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 
@@ -52,19 +49,6 @@ using Ethon::FilesystemError;
 using Ethon::MemoryRegionSequence;
 
 /* MemoryRegion class */
-
-MemoryRegion::MemoryRegion(std::string const& entryLine)
-  : m_start(0), m_end(0), m_perms(), m_offset(0), m_devMajor(0),
-    m_devMinor(0), m_inode(0), m_path()
-{
-  std::array<char, 1024> pathBuffer;
-  /*int count =*/ sscanf(entryLine.c_str(), "%lx-%lx %4s %x %hx:%hx %u %1024s",
-    &m_start, &m_end, &m_perms[0], &m_offset, &m_devMajor, &m_devMinor,
-    &m_inode, &pathBuffer[0]);
-
-  m_path.assign(&pathBuffer[0]);
-}
-
 MemoryRegion::MemoryRegion()
   : m_start(0), m_end(0), m_perms(), m_offset(0), m_devMajor(0),
     m_devMinor(0), m_inode(0), m_path()
@@ -145,70 +129,72 @@ const std::string& MemoryRegion::getPath() const
 /* MemoryRegionIterator class */
 
 MemoryRegionIterator::MemoryRegionIterator()
-  : m_current(), m_entries()
+  : m_current(), m_maps(NULL)
 { }
 
 MemoryRegionIterator::MemoryRegionIterator(Process const& process)
-  : m_current(), m_entries()
+  : m_current(),
+    m_maps(fopen((process.getProcfsDirectory()/"maps").string().c_str(), "r"))
 {
-  // Make path.
-  boost::filesystem::path path(process.getProcfsDirectory());
-  path /= "maps";
-  try
-  {
-    if(!boost::filesystem::exists(path))
-    {
-      BOOST_THROW_EXCEPTION(UnexpectedError() <<
-        ErrorString("Can't locate maps-file"));
-    }
-  }
-  catch(boost::filesystem::filesystem_error const& e)
-  {
-    BOOST_THROW_EXCEPTION(FilesystemError() <<
-      ErrorString(e.what()));
-  }
-
-  // Open path.
-  boost::filesystem::ifstream mapsFile(path);
-  if(!mapsFile.is_open())
+  if(!m_maps)
   {
     BOOST_THROW_EXCEPTION(FilesystemError() <<
       ErrorString("Can't open maps-file"));
-  }
-
-  // Copy all entries to buffer.
-  while(mapsFile.good())
-  {
-    std::string current;
-    std::getline(mapsFile, current);
-    m_entries.push_back(std::move(current));
-  }
-
-  if(m_entries.empty())
-  {
-    BOOST_THROW_EXCEPTION(UnexpectedError() <<
-      ErrorString("Couldn't read region entries from maps-file"));
   }
 
   // Set to first entry.
   increment();
 }
 
+MemoryRegionIterator::MemoryRegionIterator(MemoryRegionIterator&& other)
+  : m_current(other.m_current), m_maps(other.m_maps)
+{
+  other.m_maps = NULL;
+}
+
+MemoryRegionIterator& MemoryRegionIterator::operator=(
+  MemoryRegionIterator&& other)
+{
+  m_current = other.m_current;
+  
+  if(m_maps)
+    fclose(m_maps);
+  m_maps = other.m_maps;
+  other.m_maps = NULL;
+  
+  return *this;
+}
+
+MemoryRegionIterator::~MemoryRegionIterator()
+{
+  if(m_maps)
+    fclose(m_maps);
+}
+
 bool MemoryRegionIterator::isValid() const
 {
-  return m_entries.size() != 0;
+  return m_maps && !feof(m_maps) && !ferror(m_maps);
+}
+
+void MemoryRegionIterator::parse(char const* line)
+{
+  std::array<char, 1024> pathBuffer;
+  pathBuffer[0] = '\0';
+  sscanf(line, "%lx-%lx %4s %x %hx:%hx %u %1024s",
+    &m_current.m_start, &m_current.m_end, &m_current.m_perms[0],
+    &m_current.m_offset, &m_current.m_devMajor, &m_current.m_devMinor,
+    &m_current.m_inode, &pathBuffer[0]);
+
+  m_current.m_path.assign(&pathBuffer[0]);
 }
 
 void MemoryRegionIterator::increment()
 {
   assert(isValid());
 
-  // Get memory region entry.
-  std::string& line = m_entries.front();
-  m_current = MemoryRegion(line);
-
-  // Pop entry out of buffer.
-  m_entries.pop_front();
+  std::array<char, 1152> lineBuffer;
+  fgets(&lineBuffer[0], 1152, m_maps);
+  parse(&lineBuffer[0]);
 }
 
 bool MemoryRegionIterator::equal(MemoryRegionIterator const& other) const
