@@ -28,13 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // C++ Standard Library:
 #include <cstdint>
-#include <thread>
-#include <functional>
-#include <vector>
-#include <utility>
 
 // Boost Library:
-#include <boost/logic/tribool.hpp>
 #include <boost/noncopyable.hpp>
 
 // Ethon:
