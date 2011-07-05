@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using Ethon::Process;
 using Ethon::ProcessStatus;
 using Ethon::ProcessIterator;
-using Ethon::EthonError;
 using Ethon::SystemApiError;
 using Ethon::FilesystemError;
 using Ethon::ArgumentError;
@@ -53,7 +52,7 @@ using Ethon::UnexpectedError;
 using Ethon::ProcessSequence;
 using Ethon::Pid;
 
-bool isNumericOnly(std::string const& str)
+static bool isNumericOnly(std::string const& str)
 {
   BOOST_FOREACH(char cur, str)
   {
@@ -80,13 +79,13 @@ Process::Process(Pid process)
     if(!boost::filesystem::exists(m_path))
     {
       BOOST_THROW_EXCEPTION(ArgumentError() <<
-	ErrorString("Invalid PID"));
+        ErrorString("Invalid PID"));
     }
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
-      BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString(e.what()));
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
+      ErrorString(e.what()));
   }
 }
 
@@ -99,13 +98,13 @@ Process::Process(boost::filesystem::path const& path)
     if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename()))
     {
       BOOST_THROW_EXCEPTION(ArgumentError() <<
-	ErrorString("Invalid path"));
+        ErrorString("Invalid path"));
     }
   }
   catch(boost::filesystem::filesystem_error const& e)
   {
-      BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString(e.what()));
+    BOOST_THROW_EXCEPTION(FilesystemError() <<
+      ErrorString(e.what()));
   }
   
   // Set pid
@@ -121,19 +120,6 @@ boost::filesystem::path Process::getExecutablePath() const
 {
   // Make path to executeable and validate.
   boost::filesystem::path exePath = getProcfsDirectory() / "exe";
-  try
-  {
-    if(!boost::filesystem::exists(exePath))
-    {
-      BOOST_THROW_EXCEPTION(UnexpectedError() <<
-	ErrorString("Error finding executeable of process."));
-    } 
-  }
-  catch(boost::filesystem::filesystem_error const& e)
-  {
-      BOOST_THROW_EXCEPTION(FilesystemError() <<
-	ErrorString(e.what()));
-  }
   
   int ec; 
   std::vector<char> buffer(512);
