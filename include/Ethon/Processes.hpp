@@ -100,6 +100,20 @@ namespace Ethon
     * @return The object used to store data.
     */
     ProcessStatus& getStatus(ProcessStatus& dest) const;
+
+    /**
+     * Compares two process objects.
+     * @param rhs Another process to compare with.
+     * @result True if equal, false otherwise.
+     */
+    bool operator==(Process const& rhs) const;
+
+    /**
+     * Compares two process objects.
+     * @param rhs Another process to compare with.
+     * @result True if unequal, false otherwise.
+     */
+    bool operator!=(Process const& rhs) const;
   };
 
   /**

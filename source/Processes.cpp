@@ -182,6 +182,11 @@ bool Process::operator==(Process const& rhs) const
   return getPid() == rhs.getPid();
 }
 
+bool Process::operator!=(Process const& rhs) const
+{
+  return getPid() != rhs.getPid();
+}
+
 /* ProcessStatus class */
 
 ProcessStatus::ProcessStatus()
