@@ -99,8 +99,8 @@ namespace Ethon
   template<typename functor_t>
   functor_t enumThreads(Process const& process, functor_t f)
   {
-    return std::for_each(ThreadIterator(process.getPid()),
-            ProcessIterator(), f);
+    return std::for_each(ThreadIterator(process),
+            ThreadIterator(), f);
   }
 
   /**
