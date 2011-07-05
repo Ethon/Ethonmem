@@ -103,9 +103,26 @@ MemoryEditor& MemoryEditor::operator=(MemoryEditor const& other)
   return *this;
 }
 
+MemoryEditor::MemoryEditor(MemoryEditor&& other)
+  : m_process(other.m_process), m_file(other.m_file)
+{
+  other.m_file = 0;
+}
+
+MemoryEditor& MemoryEditor::operator=(MemoryEditor&& other)
+{
+  m_process = other.m_process;
+  
+  m_file = other.m_file;
+  other.m_file = 0;
+
+  return *this;
+}
+
 MemoryEditor::~MemoryEditor()
 {
-  ::close(m_file);
+  if(m_file)
+    ::close(m_file);
 }
 
 Process const& MemoryEditor::getProcess() const

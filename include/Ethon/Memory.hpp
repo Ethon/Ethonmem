@@ -79,6 +79,19 @@ namespace Ethon
     * @return this
     */
     MemoryEditor& operator=(MemoryEditor const& other);
+
+    /**
+    * Move-Constructor.
+    * @param other MemoryEditor to move.
+    */
+    MemoryEditor(MemoryEditor&& other);
+
+    /**
+    * Move operator.
+    * @param other MemoryEditor to move.
+    * @return *this
+    */
+    MemoryEditor& operator=(MemoryEditor&& other);
     
     /**
     * Destructor cleaning up handles.
