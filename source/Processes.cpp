@@ -177,6 +177,11 @@ ProcessStatus& Process::getStatus(ProcessStatus& dest) const
   return dest.read(*this);
 }
 
+bool Process::operator==(Process const& rhs) const
+{
+  return getPid() == rhs.getPid();
+}
+
 /* ProcessStatus class */
 
 ProcessStatus::ProcessStatus()
