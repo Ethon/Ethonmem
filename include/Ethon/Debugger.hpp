@@ -58,22 +58,24 @@ namespace Ethon
   private:
     Process m_process;
 
+    Debugger();
+
   public:
+    // Forbid move/copy operations.
+    Debugger(Debugger const&) = delete;
+    Debugger& operator=(Debugger const&) = delete;
+    Debugger(Debugger&&) = delete;
+    Debugger& operator=(Debugger&&) = delete;
+    
+    /**
+     * Returns a reference to the debugger.
+     * @return A reference to the debugger.
+     */
+    static Debugger& get();
 
     /**
-    * Constructor gathering required data for debugging from a process object.
-    * @param process A process object.
-    */
-    Debugger(Process const& process);
-
-    /**
-    * Destructor calling detach exception-save.
-    */
-    ~Debugger();
-
-    /**
-    * Return the debugged process.
-    * @return The debugged process.
+    * Return the currently debugged process.
+    * @return The currently debugged process.
     */
     Process const& getProcess() const;
 
@@ -86,12 +88,12 @@ namespace Ethon
     * parent. The child is sent a SIGSTOP, but will not necessarily have
     * stopped by the completion of this call.
     */
-    void attach() const;
+    void attach(Process const& process);
 
     /**
     * Restarts the stopped debugged process and detaches from the process.
     */
-    void detach() const;
+    void detach();
 
     /**
     * Restarts the stopped debugged process.

@@ -44,19 +44,14 @@ using Ethon::FpuRegisters;
 using Ethon::SignalInfo;
 
 /* Debugger class */
-
-Debugger::Debugger(Process const& process)
-  : m_process(process)
+Debugger::Debugger()
+  : m_process()
 { }
 
-Debugger::~Debugger()
+Debugger& Debugger::get()
 {
-  try
-  {
-    detach();
-  }
-  catch(EthonError const&)
-  { }
+  static Debugger dbg;
+  return dbg;
 }
 
 Process const& Debugger::getProcess() const
@@ -64,8 +59,12 @@ Process const& Debugger::getProcess() const
   return m_process;
 }
 
-void Debugger::attach() const
+void Debugger::attach(Process const& process)
 {
+  if(m_process.getPid())
+    detach();
+  m_process = process;
+  
   long ec = ::ptrace(PTRACE_ATTACH, m_process.getPid(), 0, 0);
   if(ec == -1)
   {
@@ -86,7 +85,7 @@ void Debugger::attach() const
   }
 }
 
-void Debugger::detach() const
+void Debugger::detach()
 {
   long ec = ::ptrace(PTRACE_DETACH, m_process.getPid(), 0, 0);
   if(ec == -1)
@@ -96,6 +95,8 @@ void Debugger::detach() const
       ErrorString("ptrace with PTRACE_DETACH failed") <<
       ErrorCode(error));
   }
+
+  m_process = Process();
 }
 
 void Debugger::continueExecution(int signalCode) const
