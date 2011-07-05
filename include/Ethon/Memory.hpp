@@ -53,7 +53,7 @@ namespace Ethon
   class MemoryEditor
   {
   private:
-    Debugger m_debugger;
+    Process m_process;
     int m_file;
 
   public:
@@ -64,7 +64,8 @@ namespace Ethon
     * @param process Process to attach to.
     * @param access Specifies a value from AccessMode. READWRITE is default.
     */
-    MemoryEditor(Debugger const& process, AccessMode access = AccessMode::READWRITE);
+    MemoryEditor(Process const& process, AccessMode access
+      = AccessMode::READWRITE);
 
     /**
     * Copy-Constructor.
@@ -89,12 +90,6 @@ namespace Ethon
     * @return The process.
     */
     Process const& getProcess() const;
-    
-    /**
-    * Returns the debugger.
-    * @return The debugger.
-    */
-    Debugger const& getDebugger() const;
 
     /**
     * Determines if it is possible to read from an address.

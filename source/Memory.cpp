@@ -49,62 +49,57 @@ using Ethon::AccessMode;
 
 /* MemoryEditor class */
 
-MemoryEditor::MemoryEditor(Debugger const& debugger, AccessMode access)
-  : m_debugger(debugger), m_file(0)
+MemoryEditor::MemoryEditor(Process const& process, AccessMode access)
+  : m_process(process), m_file(0)
 {
-  boost::filesystem::path memPath(
-    debugger.getProcess().getProcfsDirectory() / "mem");
-  if(!boost::filesystem::exists(memPath))
+  // We need to debug the process we want to open.
+  if(Debugger::get().getProcess() != process)
   {
     BOOST_THROW_EXCEPTION(EthonError() <<
-      ErrorString("Error finding mem file."));
+      ErrorString("process is not being debugged by us."));
   }
-  
-  bool write = (access != AccessMode::READ);
-  int flags = write ? O_RDWR : O_RDONLY;
-  
-  int fd = ::open(memPath.string().c_str(), flags);
-  if(fd == -1)
+
+  // Make path to memfile.
+  boost::filesystem::path memPath(process.getProcfsDirectory() / "mem");
+
+  // Open memfile.
+  int flags = (access != AccessMode::READ) ? O_RDWR : O_RDONLY;
+  m_file = ::open(memPath.string().c_str(), flags);
+  if(m_file == -1)
   {
     std::error_code const error = Ethon::makeErrorCode();
     BOOST_THROW_EXCEPTION(EthonError() <<
       ErrorString("open failed opening the mem file.") <<
       ErrorCode(error));
   }
-  
-  m_file = fd;
 }
 
 MemoryEditor::MemoryEditor(MemoryEditor const& other)
-  : m_debugger(other.m_debugger), m_file(0)
-{
-  int fd = ::dup(other.m_file);
-  if(fd == -1)
+  : m_process(other.m_process), m_file(::dup(other.m_file))
+{ 
+  if(m_file == -1)
   {
     std::error_code const error = Ethon::makeErrorCode();
     BOOST_THROW_EXCEPTION(EthonError() <<
       ErrorString("dup failed duplicating the file descriptor.") <<
       ErrorCode(error));
   }
-  
-  m_file = fd;
 }
 
 MemoryEditor& MemoryEditor::operator=(MemoryEditor const& other)
 {
-  this->m_debugger = other.m_debugger;
+  m_process = other.m_process;
   
   ::close(m_file);
-  int fd = ::dup(other.m_file);
-  if(fd == -1)
+  m_file = ::dup(other.m_file);
+  if(m_file == -1)
   {
     std::error_code const error = Ethon::makeErrorCode();
     BOOST_THROW_EXCEPTION(EthonError() <<
       ErrorString("dup failed duplicating the file descriptor.") <<
       ErrorCode(error));
   }
-  
-  m_file = fd;
+
   return *this;
 }
 
@@ -115,20 +110,15 @@ MemoryEditor::~MemoryEditor()
 
 Process const& MemoryEditor::getProcess() const
 {
-  return m_debugger.getProcess();
-}
-
-Debugger const& MemoryEditor::getDebugger() const
-{
-  return m_debugger;
+  return m_process;
 }
 
 bool MemoryEditor::isReadable(uintptr_t address) const
 {
-  boost::optional<MemoryRegion> reg =
-    Ethon::getMatchingRegion(m_debugger.getProcess(), address);
+  boost::optional<MemoryRegion> region =
+    Ethon::getMatchingRegion(m_process, address);
  
-  if(!reg || !reg->isReadable())
+  if(!region || !region->isReadable())
     return false;
     
   return true;
@@ -136,10 +126,10 @@ bool MemoryEditor::isReadable(uintptr_t address) const
 
 bool MemoryEditor::isWriteable(uintptr_t address) const
 {
-  boost::optional<MemoryRegion> reg =
-    Ethon::getMatchingRegion(m_debugger.getProcess(), address);
+  boost::optional<MemoryRegion> region =
+    Ethon::getMatchingRegion(m_process, address);
  
-  if(!reg || !reg->isWriteable())
+  if(!region || !region->isWriteable())
     return false;
     
   return true;
@@ -148,7 +138,7 @@ bool MemoryEditor::isWriteable(uintptr_t address) const
 size_t MemoryEditor::read(
         uintptr_t address, void* dest, size_t amount)
 {
-  REQUIRES_PROCESS_STOPPED(m_debugger);
+  REQUIRES_PROCESS_STOPPED(Debugger::get());
   assert(isReadable(address));
 
   typedef ::off_t Offset;
@@ -176,7 +166,7 @@ size_t MemoryEditor::read(
 size_t MemoryEditor::write(
         uintptr_t address, const void* source, size_t amount)
 {
-  REQUIRES_PROCESS_STOPPED(m_debugger);
+  REQUIRES_PROCESS_STOPPED(Debugger::get());
   assert(isWriteable(address));
 
   typedef ::off_t Offset;
