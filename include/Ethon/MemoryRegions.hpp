@@ -68,60 +68,61 @@ namespace Ethon
   public:
 
     /**
-    * Default constructor creating a completly empty object.
+    * Default constructor creating an unassociated memory region object.
     */
     MemoryRegion();
 
     /**
-    * Gets the memory regions virtual start address.
-    * @return The memory regions virtual start address.
+    * Gets the memory region's virtual start address.
+    * @return The memory region's virtual start address.
     */
     std::uintptr_t getStartAddress() const;
 
     /**
-    * Gets the memory regions virtual end address.
-    * @return The memory regions virtual end address.
+    * Gets the memory region's virtual end address.
+    * @return The memory region's virtual end address.
     */
     std::uintptr_t getEndAddress() const;
 
     /**
-    * Gets the memory regions virtual size.
-    * @return The memory regions virtual size.
+    * Gets the memory region's size.
+    * @return The memory region's size.
     */
     std::size_t getSize() const;
 
     /**
-    * Checks if reading from the memory regions' memoryspace is allowed.
+    * Checks if reading from the memory region is allowed.
     * @return True if readable, false otherwise.
     */
     bool isReadable() const;
 
     /**
-    * Checks if writing into the memory regions' memoryspace is allowed.
+    * Checks if writing to the memory region is allowed.
     * @return True if writeable, false otherwise.
     */
     bool isWriteable() const;
 
     /**
-    * Checks if the memoryspace of the memory region is executeable.
+    * Checks if the memory region is executeable.
     * @return True if executeable, false otherwise.
     */
     bool isExecuteable() const;
 
     /**
-    * Checks if the memory regions' memoryspace is shared.
+    * Checks if the memory regions is shared.
     * @return True if shared, false otherwise.
     */
     bool isShared() const;
 
     /**
-    * Checks if the memory regions' memoryspace is private.
-    * @return True if shared, false otherwise.
+    * Checks if the memory region is private.
+    * @return True if private, false otherwise.
     */
     bool isPrivate() const;
 
     /**
-    * Returns the memory regions permissions in a format rwx s/p
+    * Returns the memory region's permissions in a format rwx plus a fourth
+    * byte which is either 'p' or 's', indicating if the region is shared.
     * @return The memory regions permissions.
     */
     const std::array<char, 4>& getPermissions() const;
@@ -133,32 +134,37 @@ namespace Ethon
     std::uint32_t getOffset() const;
 
     /**
-    * Gets the major number of the device containing the mapped file.
-    * @return The major number of the device containing the mapped file.
+    * Gets the major device number of the device containing the mapped file.
+    * @return The major device number.
     */
     std::uint16_t getDeviceMajor() const;
 
     /**
-    * Gets the minor number of the device containing the mapped file.
-    * @return The minor number of the device containing the mapped file.
+    * Gets the minor device number of the device containing the mapped file.
+    * @return The minor device number.
     */
     std::uint16_t getDeviceMinor() const;
 
     /**
-    * Gets the inode on the device containing the mapped file.
-    * @return The inode on the device containing the mapped file.
+    * Gets the inode on the device of the mapped file.
+    * @return The inode on the device.
     */
     std::uint32_t getInode() const;
 
     /**
-    * Gets the path of the mapped file.
+    * Retrieves the full path of the mapped file.
+    * Some regions which are not associated to a file leave this field blank.
+    * Other unassociated regions, like [heap], fill this reagion 
     * @return The path of the mapped file.
     */
     const std::string& getPath() const;
   };
 
   /**
-  * Iterates through all memory regions of a usermode process
+  * Iterates over all memory regions of a process.
+  * This iterator only creates flat copies when copied, so handle a copy like
+  * a reference and don't attempt to use copies among multibly threads.
+  * So, whenever possible, use move-semantics instead.
   */
   class MemoryRegionIterator
     : public boost::iterator_facade<  MemoryRegionIterator,
