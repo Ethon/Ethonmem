@@ -143,16 +143,6 @@ namespace Ethon
     void sendSignal(int signalCode) const;
 
     /**
-    * Executes a syscall.
-    * @param code The syscall number to call.
-    * @param args All arguments to pass to the syscall, where the elements
-    * reach from left to right.
-    * @return The syscall's return value.
-    */
-    long executeSyscall(
-      unsigned long code, std::vector<unsigned long> const& args) const;
-
-    /**
     * Reads a word from the debugged process's memoryspace.
     * @param address The address to read from.
     * @return The read word.
@@ -226,72 +216,6 @@ namespace Ethon
     * @param signalInfo The siginfo to write.
     */
     void setSignalInfo(SignalInfo const& signalInfo) const;
-  };
-
-  /**
-  * Runs a debugger in a thread, calls callback on signals
-  */
-  class DebuggerRunner
-  {
-  public:
-    typedef std::function<bool (Debugger const&, int)> SignalCallback;
-
-  private:
-    Debugger        m_debugger;
-    std::thread     m_worker;
-    SignalCallback  m_callback;
-    boost::tribool  m_stopped;
-
-    static bool defaultCallback(Debugger const& debugger, int signalCode);
-
-  public:
-
-    /**
-    * Constructor setting the debugger to work with.
-    * @param debugger The debugger to work with.
-    */
-    DebuggerRunner(Debugger const& debugger);
-
-    /**
-    * Virtual destructor to allow inheritance.
-    */
-    virtual ~DebuggerRunner();
-
-    /**
-    * Starts the worker thread which manages signals.
-    */
-    void run();
-
-    /**
-    * Stops the worker thread which manages signals.
-    */
-    void stop();
-
-    /**
-    * Returns the debugger.
-    * @return The debugger.
-    */
-    Debugger const& getDebugger() const;
-
-    /**
-    * Returns if the engine was stopped manually.
-    * @return true if stopped manually, false otherwise. If the engine wasn't
-    * started or stopped because of an error, indeterminate is returned.
-    */
-    boost::tribool wasStopped() const;
-
-    /**
-    * Sets the callback.
-    * @param callback The callback to be set.
-    */
-    void setCallback(SignalCallback const& callback);
-
-  protected:
-
-    /**
-    * Worker function which gets run by the engine.
-    */
-    virtual void work();
   };
 
   /* RAII-class which cares about stopping a process */
