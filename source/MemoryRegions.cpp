@@ -221,6 +221,9 @@ boost::optional<MemoryRegion> Ethon::getMatchingRegion(
   MemoryRegionSequence seq = Ethon::makeMemoryRegionSequence(process);
   BOOST_FOREACH(MemoryRegion const& cur, seq)
   {
+    if(cur.getStartAddress() > address)
+      break;
+      
     if(cur.getStartAddress() >= address && cur.getEndAddress() <= address)
       return boost::optional<MemoryRegion>(cur);
   }
