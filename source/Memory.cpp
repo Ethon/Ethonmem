@@ -186,7 +186,7 @@ std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
   REQUIRES_PROCESS_STOPPED(Debugger::get());
   assert(isWriteable(address));
 
-#if 1
+#ifndef I_PATCHED_MY_KERNEL_TO_SUPPORT_WRITING_TO_MEM
   std::size_t const old = amount;
   Debugger& dbg = Debugger::get();
   
@@ -208,12 +208,11 @@ std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
   }
 
   return old;
-#endif
-
+#else
+  
   // The following code is like it SHOULD be.
   // But as long the linux devs keep their stupid idea that writing to
   // mem is a worse 'security hazard' than ptrace, we can't do it.'
-#if 0
   typedef ::off_t Offset;
   Offset ec = ::lseek(m_file, address, SEEK_SET);
   if(ec == static_cast<Offset>(-1))
