@@ -192,7 +192,7 @@ namespace Ethon
       T temp(amount);
       size_t readBytes = read(
         address, static_cast<void*>(&temp[0]), sizeof(data_t) * amount);
-      if(readBytes != sizeof(T))
+      if(readBytes != sizeof(data_t) * amount)
       {
         BOOST_THROW_EXCEPTION(EthonError() <<
           ErrorString("Wrong amount of bytes read"));
