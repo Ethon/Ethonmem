@@ -126,12 +126,13 @@ const std::string& MemoryRegion::getPath() const
 /* MemoryRegionIterator class */
 
 MemoryRegionIterator::MemoryRegionIterator()
-  : m_current(), m_maps(NULL)
+  : m_current(), m_maps()
 { }
 
 MemoryRegionIterator::MemoryRegionIterator(Process const& process)
   : m_current(),
-    m_maps(fopen((process.getProcfsDirectory()/"maps").string().c_str(), "r"))
+    m_maps(fopen((process.getProcfsDirectory()/"maps").string().c_str(), "r"),
+      std::ptr_fun(&fclose))
 {
   if(!m_maps)
   {
@@ -143,34 +144,9 @@ MemoryRegionIterator::MemoryRegionIterator(Process const& process)
   increment();
 }
 
-MemoryRegionIterator::MemoryRegionIterator(MemoryRegionIterator&& other)
-  : m_current(other.m_current), m_maps(other.m_maps)
-{
-  other.m_maps = NULL;
-}
-
-MemoryRegionIterator& MemoryRegionIterator::operator=(
-  MemoryRegionIterator&& other)
-{
-  m_current = other.m_current;
-  
-  if(m_maps)
-    fclose(m_maps);
-  m_maps = other.m_maps;
-  other.m_maps = NULL;
-  
-  return *this;
-}
-
-MemoryRegionIterator::~MemoryRegionIterator()
-{
-  if(m_maps)
-    fclose(m_maps);
-}
-
 bool MemoryRegionIterator::isValid() const
 {
-  return m_maps && !feof(m_maps) && !ferror(m_maps);
+  return m_maps && !feof(m_maps.get()) && !ferror(m_maps.get());
 }
 
 int MemoryRegionIterator::parse(char const* line)
@@ -191,7 +167,7 @@ void MemoryRegionIterator::increment()
   assert(isValid());
 
   std::array<char, 1152> lineBuffer;
-  if(fgets(&lineBuffer[0], 1152, m_maps))
+  if(fgets(&lineBuffer[0], 1152, m_maps.get()))
     parse(&lineBuffer[0]);
 }
 
@@ -221,7 +197,7 @@ boost::optional<MemoryRegion> Ethon::getMatchingRegion(
     if(cur.getStartAddress() > address)
       break;
       
-    if(cur.getStartAddress() >= address && cur.getEndAddress() <= address)
+    if(address >= cur.getStartAddress() && address <= cur.getEndAddress())
       return boost::optional<MemoryRegion>(cur);
   }
   

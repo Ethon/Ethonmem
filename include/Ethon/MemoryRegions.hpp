@@ -201,7 +201,7 @@ namespace Ethon
     MemoryRegion& dereference() const;
 
     mutable MemoryRegion m_current;
-    FILE* m_maps;
+    std::shared_ptr<FILE> m_maps;
 
   public:
 
@@ -216,22 +216,10 @@ namespace Ethon
     */
     explicit MemoryRegionIterator(Process const& process);
 
-    /**
-    * Move-Constructor.
-    * @param other Another MemoryRegionIterator to move.
-    */
-    explicit MemoryRegionIterator(MemoryRegionIterator&& other);
 
-    /**
-     * Destructor.
-     */
-    ~MemoryRegionIterator();
-
-    /**
-    * Move-Assignment.
-    * @param other Another MemoryRegionIterator to move.
-    */
-    MemoryRegionIterator& operator=(MemoryRegionIterator&& other);
+    MemoryRegionIterator(MemoryRegionIterator const&) = default;
+    MemoryRegionIterator& operator=(MemoryRegionIterator const&) = default;
+    MemoryRegionIterator(MemoryRegionIterator&&) = default;
 
     /**
     * Checks if the iterator is (still) valid.
