@@ -180,12 +180,40 @@ size_t MemoryEditor::read(
   return count;
 }
 
-size_t MemoryEditor::write(
-        uintptr_t address, const void* source, size_t amount)
+std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
+  std::size_t amount)
 {
   REQUIRES_PROCESS_STOPPED(Debugger::get());
   assert(isWriteable(address));
 
+#if 1
+  std::size_t const old = amount;
+  Debugger& dbg = Debugger::get();
+  
+  // Write aligned words.
+  static const unsigned int WIDTH = sizeof(long);
+  for(; amount >= WIDTH; address += WIDTH, amount += WIDTH)
+  {
+    dbg.writeWord(address, *static_cast<long const*>(source));
+    source = static_cast<void const*>(
+      static_cast<char const*>(source) + WIDTH);
+  }
+
+  // Write rest.
+  if(amount)
+  {
+    long current = dbg.readWord(address); // Get current word.
+    memcpy(static_cast<void*>(&current), source, amount); // Patch it.
+    dbg.writeWord(address, current); // Write it back.
+  }
+
+  return old;
+#endif
+
+  // The following code is like it SHOULD be.
+  // But as long the linux devs keep their stupid idea that writing to
+  // mem is a worse 'security hazard' than ptrace, we can't do it.'
+#if 0
   typedef ::off_t Offset;
   Offset ec = ::lseek(m_file, address, SEEK_SET);
   if(ec == static_cast<Offset>(-1))
@@ -206,4 +234,5 @@ size_t MemoryEditor::write(
   }
 
   return count;
+#endif
 }
