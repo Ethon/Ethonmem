@@ -604,10 +604,10 @@ namespace Ethon
 
   /**
   * Determines if the process image is 32 or 64bit.
-  * @param The process whose image should be examined. 
+  * @param proc process whose image should be examined.
   * @return 32 or 64
   */
-  uint8_t getProcessImageBits(Process const& proc);
+  std::uint8_t getProcessImageBits(Process const& proc);
 }
 
 #endif // __ETHON_PROCESSES_HPP__

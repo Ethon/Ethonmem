@@ -109,14 +109,14 @@ namespace Ethon
     * @param address Address to check.
     * @return True if readable, false otherwise.
     */
-    bool isReadable(uintptr_t address) const;
+    bool isReadable(std::uintptr_t address) const;
 
     /**
     * Determines if it is possible to write to an address.
     * @param address Address to check.
     * @return True if writeable, false otherwise.
     */
-    bool isWriteable(uintptr_t address) const;
+    bool isWriteable(std::uintptr_t address) const;
 
     /**
     * Reads a chunk of memory from the process.
@@ -125,7 +125,7 @@ namespace Ethon
     * @param amount Amount of bytes to read.
     * @return Amount of read bytes.
     */
-    size_t read(uintptr_t address, void* dest, size_t amount);
+    std::size_t read(std::uintptr_t address, void* dest, std::size_t amount);
 
     /**
     * Writes a chunk of memory to the process.
@@ -134,7 +134,8 @@ namespace Ethon
     * @param amount Amount of bytes to write.
     * @return Amount of written bytes.
     */
-    size_t write(uintptr_t address, const void* source, size_t amount);
+    std::size_t write(std::uintptr_t address, const void* source,
+      std::size_t amount);
 
     /**
     * Reads a POD value from the process.
@@ -142,11 +143,12 @@ namespace Ethon
     * @return The read value.
     */
     template <typename T>
-    T read(uintptr_t address,
-      typename std::enable_if<std::is_pod<T>::value,T>::type* /*dummy*/ = 0)
+    T read(std::uintptr_t address,
+      typename std::enable_if<std::is_pod<T>::value,T>::type* = 0)
     {
       T temp;
-      size_t readBytes = read(address, static_cast<void*>(&temp), sizeof(T));
+      std::size_t readBytes = read(address, static_cast<void*>(&temp),
+        sizeof(T));
       if(readBytes != sizeof(T))
       {
         BOOST_THROW_EXCEPTION(EthonError() <<
@@ -162,14 +164,14 @@ namespace Ethon
     * @return The read string.
     */
     template <typename T>
-    T read(uintptr_t address, typename std::enable_if<std::is_same<T, std::
-      basic_string<typename T::value_type>>::value, T>::type* /*dummy*/ = 0)
+    T read(std::uintptr_t address, typename std::enable_if<std::is_same<T, std::
+      basic_string<typename T::value_type>>::value, T>::type* = 0)
     {
       typedef typename T::value_type char_t;
 
       T temp;
       char_t cur = read<char_t>(address);
-      for(size_t i = 0; cur != '\0'; ++i, cur = read<char_t>(address + i))
+      for(std::size_t i = 0; cur != '\0'; ++i, cur = read<char_t>(address + i))
         temp.push_back(cur);
 
       return temp;
@@ -178,19 +180,20 @@ namespace Ethon
     /**
     * Reads a vector of POD values from the process.
     * @param address Address to read from.
+    * @param amount Amount of elements to read.
     * @return The read vector.
     */
     template <typename T>
-    T read(uintptr_t address, size_t amount, typename std::enable_if<std::
-      is_same<T, std::vector<typename T::value_type>>::value, T>::type*
-      /*dummy*/ = 0)
+    T read(std::uintptr_t address, std::size_t amount,
+      typename std::enable_if<std::
+      is_same<T, std::vector<typename T::value_type>>::value, T>::type* = 0)
     {
       typedef typename T::value_type data_t;
       static_assert(std::is_pod<data_t>::value,
         "MemoryEditor::read() Error : No POD value");
 
       T temp(amount);
-      size_t readBytes = read(
+      std::size_t readBytes = read(
         address, static_cast<void*>(&temp[0]), sizeof(data_t) * amount);
       if(readBytes != sizeof(data_t) * amount)
       {
@@ -208,8 +211,8 @@ namespace Ethon
     * @return Amount of written bytes.
     */
     template <typename T>
-    size_t write(uintptr_t address, T const& value,
-      typename std::enable_if<std::is_pod<T>::value,T>::type* /*dummy*/ = 0)
+    std::size_t write(std::uintptr_t address, T const& value,
+      typename std::enable_if<std::is_pod<T>::value,T>::type* = 0)
     {
       size_t writtenBytes = write(
         address, static_cast<const void*>(&value), sizeof(T));
@@ -229,14 +232,15 @@ namespace Ethon
     * @return Amount of written bytes.
     */
     template <typename T>
-    size_t write(uintptr_t address, T const& value, typename std::enable_if<
-      std::is_same<T, std::basic_string<typename T::value_type>>::value, T>::
-      type* /*dumm*/y = 0)
+    std::size_t write(std::uintptr_t address, T const& value,
+      typename std::enable_if<
+      std::is_same<T, std::basic_string<typename T::value_type>>::value,T>::
+      type* = 0)
     {
       typedef typename T::value_type char_t;
 
-      size_t const size = sizeof(char_t) * (value.length() + 1);
-      size_t writtenBytes = write(
+      std::size_t const size = sizeof(char_t) * (value.length() + 1);
+      std::size_t writtenBytes = write(
         address, static_cast<const void*>(value.c_str()), size);
       if(writtenBytes != size)
       {
@@ -254,16 +258,17 @@ namespace Ethon
     * @return Amount of written bytes.
     */
     template <typename T>
-    size_t write(uintptr_t address, T const& value, typename std::enable_if<
-      std::is_same<T, std::vector<typename T::value_type>>::value, T>::type*
-      /*dummy*/ = 0)
+    std::size_t write(std::uintptr_t address, T const& value,
+      typename std::enable_if<
+      std::is_same<T, std::vector<typename T::value_type>>::value, T>::
+      type* = 0)
     {
       typedef typename T::value_type data_t;
       static_assert(std::is_pod<data_t>::value,
         "MemoryEditor::write() Error : No POD value");
 
-      size_t const size = sizeof(data_t) * value.size();
-      size_t writtenBytes = write(
+      std::size_t const size = sizeof(data_t) * value.size();
+      std::size_t writtenBytes = write(
         address, static_cast<const void*>(&value[0]), size);
       if(writtenBytes != size)
       {

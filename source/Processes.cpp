@@ -579,7 +579,7 @@ std::vector<Process>
   return temp;
 }
 
-uint8_t Ethon::getProcessImageBits(Process const& proc)
+std::uint8_t Ethon::getProcessImageBits(Process const& proc)
 {
   // We need to read a few bytes to determine archtitecture.
   boost::filesystem::ifstream exe(proc.getExecutablePath());
@@ -590,12 +590,18 @@ uint8_t Ethon::getProcessImageBits(Process const& proc)
   }
 
   // Read ELF ident.
-  uint8_t ident[EI_NIDENT];
+  std::uint8_t ident[EI_NIDENT];
   exe.read(reinterpret_cast<char*>(&ident), EI_NIDENT);
 
-  // Check magic.
-  uint32_t magic = *reinterpret_cast<const uint32_t*>(&ELFMAG[0]); 
-  if(*reinterpret_cast<uint32_t*>(&ident[EI_MAG0]) != magic)
+  // Correct magic.
+  void const* tmp = static_cast<void const*>(&ELFMAG[0]);
+  static std::uint32_t const magic = *static_cast<std::uint32_t const*>(tmp);
+
+  // This magic.
+  tmp = static_cast<void const*>(&ident[EI_MAG0]);
+  std::uint32_t const thisMagic = *static_cast<std::uint32_t const*>(tmp);
+  
+  if(thisMagic != magic)
   {
     BOOST_THROW_EXCEPTION(UnexpectedError() <<
       ErrorString("No valid ELF file: Wrong magic number."));

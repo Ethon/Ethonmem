@@ -189,7 +189,7 @@ MemoryRegionSequence Ethon::makeMemoryRegionSequence(Process const& process)
 }
 
 boost::optional<MemoryRegion> Ethon::getMatchingRegion(
-  Process const& process, uintptr_t address)
+  Process const& process, std::uintptr_t address)
 {
   MemoryRegionSequence seq = Ethon::makeMemoryRegionSequence(process);
   BOOST_FOREACH(MemoryRegion const& cur, seq)

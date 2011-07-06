@@ -152,8 +152,8 @@ bool MemoryEditor::isWriteable(uintptr_t address) const
   return true;
 }
 
-size_t MemoryEditor::read(
-        uintptr_t address, void* dest, size_t amount)
+std::size_t MemoryEditor::read(std::uintptr_t address, void* dest,
+  std::size_t amount)
 {
   REQUIRES_PROCESS_STOPPED(Debugger::get());
   assert(isReadable(address));
