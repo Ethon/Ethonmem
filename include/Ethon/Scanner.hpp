@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <type_traits>
 
 // Ethon:
 #include <Ethon/Memory.hpp>
@@ -33,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Ethon
 {
-  typedef std::vector<uint8_t> ByteContainer;
+  typedef std::vector<std::uint8_t> ByteContainer;
 
   /**
   * Converts a POD value into a byte-representation.
@@ -98,9 +99,9 @@ namespace Ethon
     * @param value Value to find.
     * @param region The memory region which should be searched.
     * If NULL, all regions will be searched.
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
-    uintptr_t find(ByteContainer const& value,
+    std::uintptr_t find(ByteContainer const& value,
       MemoryRegion const* region = 0);
 
     /**
@@ -110,20 +111,48 @@ namespace Ethon
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
     * readable, non-writeable, executeable OR non-executeable. 
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
-    uintptr_t find(ByteContainer const& value,
+    std::uintptr_t find(ByteContainer const& value,
       std::string const& perms);
 
+    /**
+    * Finds a binary pattern inside a memory region.
+    * @param pattern A byte pattern, wrapped in a string. For example
+    * "\xDE\xAD\xBE\xEF"
+    * @param mask A mask to specify wildcards, where '*' is a wildcard and
+    * everything else a match, for example "--*-" ignores the third byte.
+    * @param region The memory region which should be searched.
+    * If NULL, all regions will be searched.
+    * @return An address or 0 if the value could not be found.
+    */
+    std::uintptr_t findPattern(std::string const& pattern,
+      std::string const& mask, MemoryRegion const* region = 0);
+
+    /**
+    * Finds a binary pattern inside a memory region.
+    * @param pattern A byte pattern, wrapped in a string. For example
+    * "\xDE\xAD\xBE\xEF"
+    * @param mask A mask to specify wildcards, where '*' is a wildcard and
+    * everything else a match, for example "--*-" ignores the third byte.
+    * @param perms A string consisting of 3 chars, [rwx], where a '-' means
+    * that the operation should NOT be allowed and '*' means that you want to
+    * ignore that operation. For instance, "r-*" searches all memory which is
+    * readable, non-writeable, executeable OR non-executeable. 
+    * @return An address or 0 if the value could not be found.
+    */
+    std::uintptr_t findPattern(std::string const& pattern,
+      std::string const& mask, std::string const& perms);
+    
     /**
     * Finds a POD value inside a memory region.
     * @param value Value to find.
     * @param region The memory region which should be searched.
     * If NULL, all regions will be searched.
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template<typename T>
-    uintptr_t find(T const& value, MemoryRegion const* region = 0,
+    std::uintptr_t find(T const& value, MemoryRegion const* region = 0,
       typename std::enable_if<std::is_pod<T>::value,T>::type* /*dummy*/ = 0)
     {
       return find(getBytes(value), region);
@@ -136,10 +165,10 @@ namespace Ethon
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
     * readable, non-writeable, executeable OR non-executeable. 
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template<typename T>
-    uintptr_t find(T const& value, std::string const& perms,
+    std::uintptr_t find(T const& value, std::string const& perms,
       typename std::enable_if<std::is_pod<T>::value,T>::type* /*dummy*/ = 0)
     {
       return find(getBytes(value), perms);
@@ -150,10 +179,10 @@ namespace Ethon
     * @param value String to find.
     * @param region The memory region which should be searched.
     * If NULL, all regions will be searched.
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template <typename T>
-    uintptr_t find(std::basic_string<T> const& value,
+    std::uintptr_t find(std::basic_string<T> const& value,
       MemoryRegion const* region = 0)
     {
       return find(getBytes(value), region);
@@ -166,10 +195,10 @@ namespace Ethon
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
     * readable, non-writeable, executeable OR non-executeable. 
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template <typename T>
-    uintptr_t find(std::basic_string<T> const& value,
+    std::uintptr_t find(std::basic_string<T> const& value,
       std::string const& perms)
     {
       return find(getBytes(value), perms);
@@ -180,10 +209,10 @@ namespace Ethon
     * @param value Vector to find.
     * @param region The memory region which should be searched.
     * If NULL, all regions will be searched.
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template <typename T>
-    uintptr_t find(std::vector<T> const& value,
+    std::uintptr_t find(std::vector<T> const& value,
       MemoryRegion const* region = 0)
     {
       return find(getBytes(value), region);
@@ -196,10 +225,10 @@ namespace Ethon
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
     * readable, non-writeable, executeable OR non-executeable. 
-    * @result An address or 0 if the value could not be found. 
+    * @return An address or 0 if the value could not be found.
     */
     template <typename T>
-    uintptr_t find(std::vector<T> const& value,
+    std::uintptr_t find(std::vector<T> const& value,
       std::string const& perms)
     {
       return find(getBytes(value), perms);
