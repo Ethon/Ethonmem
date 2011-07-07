@@ -66,7 +66,7 @@ namespace Ethon
     Debugger& operator=(Debugger const&) = delete;
     Debugger(Debugger&&) = delete;
     Debugger& operator=(Debugger&&) = delete;
-    
+
     /**
      * Returns a reference to the debugger.
      * @return A reference to the debugger.
@@ -127,7 +127,7 @@ namespace Ethon
     * Sends the debugged process a SIGSTOP to stop it.
     */
     void stop() const;
-    
+
     /**
     * Sends the debugged process a SIGCONt to continue it.
     */
@@ -220,18 +220,18 @@ namespace Ethon
   {
     Debugger const& m_debugger;
     bool m_stopped;
-        
+
     inline RequireProcessStopped(Debugger const& debugger)
-      : m_debugger(debugger)
+      : m_debugger(debugger), m_stopped()
     {
       ProcessStatus status;
       debugger.getProcess().getStatus(status);
       m_stopped = status.isStopped();
-          
+
       if(!m_stopped)
         debugger.stop();
     }
-        
+
     inline ~RequireProcessStopped()
     {
       if(!m_stopped)
@@ -242,7 +242,7 @@ namespace Ethon
 
 #define REQUIRES_PROCESS_STOPPED(debugger) \
   Ethon::RequireProcessStopped req_proc_stppd__##__LINE__ (debugger);
-  
+
 #define REQUIRES_PROCESS_STOPPED_INTERNAL() \
   REQUIRES_PROCESS_STOPPED(*this)
 
