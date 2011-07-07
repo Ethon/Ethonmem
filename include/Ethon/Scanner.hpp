@@ -90,7 +90,7 @@ namespace Ethon
   public:
     /**
     * Constructor initializing the scanner object.
-    * @param editor MemoryEditor the Scanner may use for reading memory. 
+    * @param editor MemoryEditor the Scanner may use for reading memory.
     */
     Scanner(MemoryEditor const& editor);
 
@@ -107,10 +107,10 @@ namespace Ethon
     /**
     * Finds a value inside memory matching a permission pattern.
     * @param value Value to find.
-    * @param perms A string consisting of 3 chars, [rwx], where a '-' means
+    * @param perms A string consisting of 4 chars, [rwxs], where a '-' means
     * that the operation should NOT be allowed and '*' means that you want to
-    * ignore that operation. For instance, "r-*" searches all memory which is
-    * readable, non-writeable, executeable OR non-executeable. 
+    * ignore that operation. For instance, "r-*-" searches all memory which is
+    * readable, non-writeable, executeable OR non-executeable and NOT shared.
     * @return An address or 0 if the value could not be found.
     */
     std::uintptr_t find(ByteContainer const& value,
@@ -135,15 +135,15 @@ namespace Ethon
     * "\xDE\xAD\xBE\xEF"
     * @param mask A mask to specify wildcards, where '*' is a wildcard and
     * everything else a match, for example "--*-" ignores the third byte.
-    * @param perms A string consisting of 3 chars, [rwx], where a '-' means
+    * @param perms A string consisting of 4 chars, [rwxs], where a '-' means
     * that the operation should NOT be allowed and '*' means that you want to
-    * ignore that operation. For instance, "r-*" searches all memory which is
-    * readable, non-writeable, executeable OR non-executeable. 
+    * ignore that operation. For instance, "r-*-" searches all memory which is
+    * readable, non-writeable, executeable OR non-executeable and NOT shared.
     * @return An address or 0 if the value could not be found.
     */
     std::uintptr_t findPattern(std::string const& pattern,
       std::string const& mask, std::string const& perms);
-    
+
     /**
     * Finds a POD value inside a memory region.
     * @param value Value to find.
@@ -164,7 +164,7 @@ namespace Ethon
     * @param perms A string consisting of 3 chars, [rwx], where a '-' means
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
-    * readable, non-writeable, executeable OR non-executeable. 
+    * readable, non-writeable, executeable OR non-executeable.
     * @return An address or 0 if the value could not be found.
     */
     template<typename T>
@@ -194,7 +194,7 @@ namespace Ethon
     * @param perms A string consisting of 3 chars, [rwx], where a '-' means
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
-    * readable, non-writeable, executeable OR non-executeable. 
+    * readable, non-writeable, executeable OR non-executeable.
     * @return An address or 0 if the value could not be found.
     */
     template <typename T>
@@ -217,14 +217,14 @@ namespace Ethon
     {
       return find(getBytes(value), region);
     }
- 
+
     /**
     * Finds a vector of POD values inside memory matching a permission pattern.
     * @param value Vector to find.
     * @param perms A string consisting of 3 chars, [rwx], where a '-' means
     * that the operation should NOT be allowed and '*' means that you want to
     * ignore that operation. For instance, "r-*" searches all memory which is
-    * readable, non-writeable, executeable OR non-executeable. 
+    * readable, non-writeable, executeable OR non-executeable.
     * @return An address or 0 if the value could not be found.
     */
     template <typename T>
