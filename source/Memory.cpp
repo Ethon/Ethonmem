@@ -76,7 +76,7 @@ MemoryEditor::MemoryEditor(Process const& process, AccessMode access)
 
 MemoryEditor::MemoryEditor(MemoryEditor const& other)
   : m_process(other.m_process), m_file(::dup(other.m_file))
-{ 
+{
   if(m_file == -1)
   {
     std::error_code const error = Ethon::makeErrorCode();
@@ -89,7 +89,7 @@ MemoryEditor::MemoryEditor(MemoryEditor const& other)
 MemoryEditor& MemoryEditor::operator=(MemoryEditor const& other)
 {
   m_process = other.m_process;
-  
+
   ::close(m_file);
   m_file = ::dup(other.m_file);
   if(m_file == -1)
@@ -112,7 +112,7 @@ MemoryEditor::MemoryEditor(MemoryEditor&& other)
 MemoryEditor& MemoryEditor::operator=(MemoryEditor&& other)
 {
   m_process = other.m_process;
-  
+
   m_file = other.m_file;
   other.m_file = 0;
 
@@ -134,10 +134,10 @@ bool MemoryEditor::isReadable(uintptr_t address) const
 {
   boost::optional<MemoryRegion> region =
     Ethon::getMatchingRegion(m_process, address);
- 
+
   if(!region || !region->isReadable())
     return false;
-    
+
   return true;
 }
 
@@ -145,10 +145,10 @@ bool MemoryEditor::isWriteable(uintptr_t address) const
 {
   boost::optional<MemoryRegion> region =
     Ethon::getMatchingRegion(m_process, address);
- 
+
   if(!region || !region->isWriteable())
     return false;
-    
+
   return true;
 }
 
@@ -156,7 +156,6 @@ std::size_t MemoryEditor::read(std::uintptr_t address, void* dest,
   std::size_t amount)
 {
   REQUIRES_PROCESS_STOPPED(Debugger::get());
-  assert(isReadable(address));
 
   typedef ::off_t Offset;
   Offset ec = ::lseek(m_file, address, SEEK_SET);
@@ -184,12 +183,11 @@ std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
   std::size_t amount)
 {
   REQUIRES_PROCESS_STOPPED(Debugger::get());
-  assert(isWriteable(address));
 
 #ifndef I_PATCHED_MY_KERNEL_TO_SUPPORT_WRITING_TO_MEM
   std::size_t const old = amount;
   Debugger& dbg = Debugger::get();
-  
+
   // Write aligned words.
   static const unsigned int WIDTH = sizeof(long);
   for(; amount >= WIDTH; address += WIDTH, amount += WIDTH)
@@ -209,7 +207,7 @@ std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
 
   return old;
 #else
-  
+
   // The following code is like it SHOULD be.
   // But as long the linux devs keep their stupid idea that writing to
   // mem is a worse 'security hazard' than ptrace, we can't do it.'
