@@ -14,7 +14,6 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -26,17 +25,40 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-Wall" />
-					<Add option="-O2" />
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add directory="./include/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="boost_system" />
+					<Add library="boost_filesystem" />
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="main.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Compiler>
+			<Add option="-Weffc++" />
+			<Add option="-std=c++0x" />
+			<Add option="-Wfatal-errors" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="include/Ethon/Debugger.hpp" />
+		<Unit filename="include/Ethon/Error.hpp" />
+		<Unit filename="include/Ethon/Memory.hpp" />
+		<Unit filename="include/Ethon/MemoryRegions.hpp" />
+		<Unit filename="include/Ethon/Processes.hpp" />
+		<Unit filename="include/Ethon/Scanner.hpp" />
+		<Unit filename="include/Ethon/Threads.hpp" />
+		<Unit filename="include/Ethonmem.hpp" />
+		<Unit filename="source/Debugger.cpp" />
+		<Unit filename="source/Error.cpp" />
+		<Unit filename="source/Memory.cpp" />
+		<Unit filename="source/MemoryRegions.cpp" />
+		<Unit filename="source/Processes.cpp" />
+		<Unit filename="source/Scanner.cpp" />
+		<Unit filename="source/Threads.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
