@@ -43,6 +43,7 @@ using Ethon::ByteContainer;
 
 struct WrappedByte
 {
+  WrappedByte() = default;
   WrappedByte(std::uint8_t value_, bool wildcard_)
     : value(value_), wildcard(wildcard_)
   { }
@@ -60,7 +61,7 @@ static std::vector<WrappedByte> compilePattern(std::string const& pattern,
       Ethon::ErrorString("Pattern and mask have not equal size"));
   }
 
-  std::vector<WrappedByte> values;
+  std::vector<WrappedByte> values(pattern.length());
   for(std::size_t i = 0, len = pattern.length(); i < len; ++i)
     values[i] = WrappedByte(pattern[i], mask[i] == '*');
 
@@ -220,6 +221,7 @@ std::uintptr_t Scanner::findPattern(std::string const& pattern,
   return impl_findPattern(compilePattern(pattern, mask), region, m_editor);
 }
 
+#include <iostream>
 std::uintptr_t Scanner::findPattern(std::string const& pattern,
   std::string const& mask, std::string const& perms)
 {
