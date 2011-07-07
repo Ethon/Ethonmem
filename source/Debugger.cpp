@@ -64,7 +64,7 @@ void Debugger::attach(Process const& process)
   if(m_process.getPid())
     detach();
   m_process = process;
-  
+
   long ec = ::ptrace(PTRACE_ATTACH, m_process.getPid(), 0, 0);
   if(ec == -1)
   {
@@ -73,7 +73,7 @@ void Debugger::attach(Process const& process)
       ErrorString("ptrace with PTRACE_ATTACH failed") <<
       ErrorCode(error));
   }
-  
+
   // Wait for process to stop.
   int status;
   if(waitpid(m_process.getPid(), &status, 0) == -1 || !WIFSTOPPED(status))
@@ -87,6 +87,9 @@ void Debugger::attach(Process const& process)
 
 void Debugger::detach()
 {
+  if(!m_process.getPid())
+    return;
+
   long ec = ::ptrace(PTRACE_DETACH, m_process.getPid(), 0, 0);
   if(ec == -1)
   {
