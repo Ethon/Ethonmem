@@ -190,7 +190,7 @@ std::size_t MemoryEditor::write(std::uintptr_t address, const void* source,
 
   // Write aligned words.
   static const unsigned int WIDTH = sizeof(long);
-  for(; amount >= WIDTH; address += WIDTH, amount += WIDTH)
+  for(; amount >= WIDTH; address += WIDTH, amount -= WIDTH)
   {
     dbg.writeWord(address, *static_cast<long const*>(source));
     source = static_cast<void const*>(
