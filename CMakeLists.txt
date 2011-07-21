@@ -8,7 +8,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 ENDIF()
 
 #Boost is required to build Ethonmem.
-FIND_PACKAGE(Boost)
+FIND_PACKAGE(Boost REQUIRED)
 
 #Specify include directories.
 INCLUDE_DIRECTORIES( ${ETHONMEM_SOURCE_DIR}/include )
