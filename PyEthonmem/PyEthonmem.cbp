@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="PyEthonmem" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="./Ethonmem" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-fPIC" />
+			<Add directory="/usr/include/python2.7" />
+			<Add directory="../include" />
+		</Compiler>
+		<Linker>
+			<Add library="boost_python" />
+			<Add library="boost_filesystem" />
+			<Add library="boost_system" />
+			<Add library="python2.7" />
+			<Add directory=".." />
+		</Linker>
+		<Unit filename="PyEthonmem.cpp" />
+		<Unit filename="exportProcesses.cpp" />
+		<Unit filename="../source/Debugger.cpp" />
+		<Unit filename="../source/Error.cpp" />
+		<Unit filename="../source/Memory.cpp" />
+		<Unit filename="../source/MemoryRegions.cpp" />
+		<Unit filename="../source/Processes.cpp" />
+		<Unit filename="../source/Scanner.cpp" />
+		<Unit filename="../source/Threads.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
