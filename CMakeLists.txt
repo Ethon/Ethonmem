@@ -1,10 +1,10 @@
 #Set up project
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT(ETHONMEM)
+PROJECT(ethonmem)
 
 #Set appropiate flags. Currently only supports g++ 4.5.0 and higher versions.
 IF(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "-g -std=c++0x -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS "-std=c++0x")
 ENDIF()
 
 #Boost is required to build Ethonmem.
@@ -16,12 +16,12 @@ INCLUDE_DIRECTORIES( ${ETHONMEM_SOURCE_DIR}/include )
 #Compile ethonmem as static library.
 ADD_LIBRARY( ethonmem STATIC
   source/Error.cpp
-	source/Debugger.cpp
-	source/Memory.cpp
-	source/MemoryRegions.cpp
-	source/Processes.cpp
-	source/Scanner.cpp
-	source/Threads.cpp
+  source/Debugger.cpp
+  source/Memory.cpp
+  source/MemoryRegions.cpp
+  source/Processes.cpp
+  source/Scanner.cpp
+  source/Threads.cpp
 )
 
 #Link.
