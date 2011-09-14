@@ -43,7 +43,7 @@ namespace Ethon
   class ProcessStatus;
 
   /**
-  * The currently running processes.
+  * A currently running processes.
   */
   class Process
   {
