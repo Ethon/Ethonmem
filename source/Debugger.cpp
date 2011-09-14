@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // POSIX:
+#include <sys/types.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
-#include <signal.h>
-#include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 // C++ Standard Library:
 #include <cerrno>
