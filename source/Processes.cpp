@@ -95,7 +95,7 @@ Process::Process(boost::filesystem::path const& path)
   // Validate path
   try
   {
-    if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename()))
+    if(!boost::filesystem::exists(path) || !isNumericOnly(path.filename().string()))
     {
       BOOST_THROW_EXCEPTION(ArgumentError() <<
         ErrorString("Invalid path"));
@@ -511,7 +511,9 @@ void ProcessIterator::increment()
   assert(isValid());
 
   // Skip all non-process directories and assign.
-  for(++m_iter; isValid() && !isNumericOnly(m_iter->filename()); ++m_iter);
+  for(	++m_iter;
+	isValid() && !isNumericOnly(m_iter->path().filename().string());
+	++m_iter);
   m_current = isValid() ? Process(*m_iter) : Process();
 }
 
