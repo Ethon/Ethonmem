@@ -1,6 +1,7 @@
 #Set up project
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(ethonmem)
+set(ETHONMEM_SOURCE_DIR .)
 
 #Set appropiate flags. Currently only supports g++ 4.5.0 and higher versions.
 IF(CMAKE_COMPILER_IS_GNUCXX)
