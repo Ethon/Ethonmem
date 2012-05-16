@@ -129,7 +129,7 @@ namespace Ethon
     void stop() const;
 
     /**
-    * Sends the debugged process a SIGCONt to continue it.
+    * Sends the debugged process a SIGCONT to continue it.
     */
     void cont() const;
 
@@ -214,36 +214,6 @@ namespace Ethon
     */
     void setSignalInfo(SignalInfo const& signalInfo) const;
   };
-
-  /* RAII-class which cares about stopping a process */
-  struct RequireProcessStopped : private boost::noncopyable
-  {
-    Debugger const& m_debugger;
-    bool m_stopped;
-
-    inline RequireProcessStopped(Debugger const& debugger)
-      : m_debugger(debugger), m_stopped()
-    {
-      ProcessStatus status;
-      debugger.getProcess().getStatus(status);
-      m_stopped = status.isStopped();
-
-      if(!m_stopped)
-        debugger.stop();
-    }
-
-    inline ~RequireProcessStopped()
-    {
-      if(!m_stopped)
-        m_debugger.cont();
-    }
-  };
 }
-
-#define REQUIRES_PROCESS_STOPPED(debugger) \
-  Ethon::RequireProcessStopped req_proc_stppd__##__LINE__ (debugger);
-
-#define REQUIRES_PROCESS_STOPPED_INTERNAL() \
-  REQUIRES_PROCESS_STOPPED(*this)
 
 #endif // __ETHON_DEBUGGER_HPP__

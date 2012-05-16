@@ -5,9 +5,9 @@ set(ETHONMEM_SOURCE_DIR .)
 
 # Set appropiate flags. A C++11 compiler is required.
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "-std=c++0x -Wall -Wextra -pedantic")
-  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s -DNDEBUG")
+	set(CMAKE_CXX_FLAGS "-std=c++0x -Wall -Wextra -pedantic")
+	set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3 -s -DNDEBUG")
 endif()
 
 # Search for required packages.
@@ -21,13 +21,14 @@ INCLUDE_DIRECTORIES(
 
 # Specify source files.
 set(ETHONMEM_SOURCE_FILES
-  source/Error.cpp
-  source/Debugger.cpp
-  source/Memory.cpp
-  source/MemoryRegions.cpp
-  source/Processes.cpp
-  source/Scanner.cpp
-  source/Threads.cpp
+	source/Error.cpp
+	source/Debugger.cpp
+	source/Memory.cpp
+	source/MemoryRegions.cpp
+	source/Processes.cpp
+	source/Scanner.cpp
+	source/Threads.cpp
+	source/ProcessLock.cpp
 )
 
 #Compile ethonmem as library.
